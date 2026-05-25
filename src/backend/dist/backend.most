@@ -1,0 +1,290 @@
+// Version: 3.0.0
+type ContestEntry__152857864 =
+  {
+    contestId : Nat;
+    joinedAt : Int;
+    owner : Principal;
+    points : Float;
+    prize : Nat;
+    rank : ?Nat;
+    teamId : Nat
+  };
+type ContestEntry__546046368 =
+  {
+    contestId : Nat;
+    joinedAt : Int;
+    owner : Principal;
+    points : Float;
+    prize : Nat;
+    rank : ?Nat;
+    teamId : Nat
+  };
+type ContestType__411498428 =
+  {#Head2Head; #MegaLeague; #MiniLeague; #Practice};
+type ContestType__791839297 =
+  {#Head2Head; #MegaLeague; #MiniLeague; #Practice};
+type Contest__395526177 =
+  {
+    contestType : ContestType__411498428;
+    createdAt : Int;
+    entryFee : Nat;
+    filledSpots : Nat;
+    id : Nat;
+    matchId : Nat;
+    maxEntries : Nat;
+    name : Text;
+    prizeBreakdown : [(Nat, Nat)];
+    prizePool : Nat
+  };
+type Contest__806550774 =
+  {
+    contestType : ContestType__791839297;
+    createdAt : Int;
+    entryFee : Nat;
+    filledSpots : Nat;
+    id : Nat;
+    matchId : Nat;
+    maxEntries : Nat;
+    name : Text;
+    prizeBreakdown : [(Nat, Nat)];
+    prizePool : Nat
+  };
+type Data__791452850<K, V> =
+  {var count : Nat__490723111; kvs : [var ?(K, V)]};
+type FantasyTeam__225024112 =
+  {
+    captainId : Nat;
+    createdAt : Int;
+    id : Nat;
+    matchId : Nat;
+    name : Text;
+    owner : Principal;
+    playerIds : [Nat];
+    totalPoints : Float;
+    viceCaptainId : Nat
+  };
+type FantasyTeam__789250288 =
+  {
+    captainId : Nat;
+    createdAt : Int;
+    id : Nat;
+    matchId : Nat;
+    name : Text;
+    owner : Principal;
+    playerIds : [Nat];
+    totalPoints : Float;
+    viceCaptainId : Nat
+  };
+type Internal__8484328<K, V> =
+  {children : [var ?Node__46230540<K, V>]; data : Data__791452850<K, V>};
+type Leaf__809889148<K, V> = {data : Data__791452850<K, V>};
+type List__415060402<T> = List__790383201<T>;
+type List__790383201<T> =
+  {
+    var blockIndex : Nat__490723111;
+    var blocks : [var [var ?T]];
+    var elementIndex : Nat__490723111
+  };
+type Map__158565046<K, V> = Map__297112838<K, V>;
+type Map__297112838<K, V> =
+  {var root : Node__46230540<K, V>; var size : Nat__490723111};
+type Map__605269027<K, V> = Map__158565046<K, V>;
+type MatchStatus__1001822333 = {#Cancelled; #Completed; #Live; #Upcoming};
+type MatchStatus__1034124186 = {#Cancelled; #Completed; #Live; #Upcoming};
+type Match__1022459138 =
+  {
+    id : Nat;
+    lastUpdated : Int;
+    scoreA : ?Text;
+    scoreB : ?Text;
+    sport : Sport__969636327;
+    startTime : Int;
+    status : MatchStatus__1034124186;
+    teamA : TeamInfo__486497245;
+    teamB : TeamInfo__486497245;
+    venue : Text
+  };
+type Match__564601088 =
+  {
+    id : Nat;
+    lastUpdated : Int;
+    scoreA : ?Text;
+    scoreB : ?Text;
+    sport : Sport__793296809;
+    startTime : Int;
+    status : MatchStatus__1001822333;
+    teamA : Team__97538390;
+    teamB : Team__97538390;
+    venue : Text
+  };
+type Nat__490723111 = Nat__920180692;
+type Nat__920180692 = Nat;
+type Node__46230540<K, V> =
+  {#internal : Internal__8484328<K, V>; #leaf : Leaf__809889148<K, V>};
+type PlayerRole__116669082 =
+  {
+    #AllRounder;
+    #AllRounderKabaddi;
+    #Batsman;
+    #Bowler;
+    #Defender;
+    #Defender2;
+    #Forward;
+    #Goalkeeper;
+    #Midfielder;
+    #Raider;
+    #WicketKeeper
+  };
+type PlayerRole__289444992 =
+  {
+    #AllRounder;
+    #AllRounderKabaddi;
+    #Batsman;
+    #Bowler;
+    #Defender;
+    #Defender2;
+    #Forward;
+    #Goalkeeper;
+    #Midfielder;
+    #Raider;
+    #WicketKeeper
+  };
+type Player__238049742 =
+  {
+    credit : Float;
+    id : Nat;
+    matchId : Nat;
+    name : Text;
+    points : Float;
+    role : PlayerRole__289444992;
+    selPct : Float;
+    team : Text
+  };
+type Player__3343875 =
+  {
+    credit : Float;
+    id : Nat;
+    matchId : Nat;
+    name : Text;
+    points : Float;
+    role : PlayerRole__116669082;
+    selPct : Float;
+    team : Text
+  };
+type Sport__793296809 = {#Cricket; #Football; #Kabaddi};
+type Sport__969636327 = {#Cricket; #Football; #Kabaddi};
+type StateRecord__16906099 =
+  {
+    var nextContestId : Nat;
+    var nextMatchId : Nat;
+    var nextPlayerId : Nat;
+    var nextTeamId : Nat;
+    var nextTxId : Nat
+  };
+type StripeConfig__801884581 = {allowedCountries : [Text]; secretKey : Text};
+type StripeConfiguration__87721349 =
+  {allowedCountries : [Text]; secretKey : Text};
+type TeamInfo__486497245 = {code : Text; logo : ?Text; name : Text};
+type Team__97538390 = {code : Text; logo : ?Text; name : Text};
+type TransactionKind__1033416026 =
+  {#ContestEntry; #Deposit; #PrizeCredit; #Refund; #Withdrawal};
+type Transaction__381777412 =
+  {
+    amount : Nat;
+    id : Nat;
+    kind : {#ContestEntry; #Deposit; #PrizeCredit; #Refund; #Withdrawal};
+    note : Text;
+    owner : Principal;
+    timestamp : Int
+  };
+type Transaction__865268250 =
+  {
+    amount : Nat;
+    id : Nat;
+    kind : TransactionKind__1033416026;
+    note : Text;
+    owner : Principal;
+    timestamp : Int
+  };
+type UserProfile__315128327 =
+  {
+    joinedAt : Int;
+    kycDone : Bool;
+    phone : ?Text;
+    principal : Principal;
+    username : Text
+  };
+type UserProfile__491224006 =
+  {
+    joinedAt : Int;
+    kycDone : Bool;
+    phone : ?Text;
+    principal : Principal;
+    username : Text
+  };
+actor ({
+  in var contests : Map__605269027<Nat, Contest__395526177>;
+  in var entries :
+    Map__605269027<Nat, List__415060402<ContestEntry__546046368>>;
+  in var lastHeartbeat : Int;
+  in var matches : Map__605269027<Nat, Match__1022459138>;
+  in var players : Map__605269027<Nat, Player__238049742>;
+  in var profiles : Map__605269027<Principal, UserProfile__315128327>;
+  in var seedDone : Bool;
+  in state : StateRecord__16906099;
+  in var stripeConfig : ?StripeConfig__801884581;
+  in var teams : Map__605269027<Nat, FantasyTeam__225024112>;
+  in var transactions :
+    Map__605269027<Principal, List__415060402<Transaction__381777412>>;
+  in var wallets : Map__605269027<Principal, Nat>
+}, {
+  stable var contests :
+    {
+      var root : Node__46230540<Nat, Contest__806550774>;
+      var size : Nat__490723111
+    };
+  stable var entries :
+    {
+      var root : Node__46230540<Nat, List__415060402<ContestEntry__152857864>>;
+      var size : Nat__490723111
+    };
+  stable var lastHeartbeat : Int;
+  stable var matches :
+    {
+      var root : Node__46230540<Nat, Match__564601088>;
+      var size : Nat__490723111
+    };
+  stable var players :
+    {
+      var root : Node__46230540<Nat, Player__3343875>;
+      var size : Nat__490723111
+    };
+  stable var profiles :
+    {
+      var root : Node__46230540<Principal, UserProfile__491224006>;
+      var size : Nat__490723111
+    };
+  stable var seedDone : Bool;
+  stable state :
+    {
+      var nextContestId : Nat;
+      var nextMatchId : Nat;
+      var nextPlayerId : Nat;
+      var nextTeamId : Nat;
+      var nextTxId : Nat
+    };
+  stable var stripeConfig : ?StripeConfiguration__87721349;
+  stable var teams :
+    {
+      var root : Node__46230540<Nat, FantasyTeam__789250288>;
+      var size : Nat__490723111
+    };
+  stable var transactions :
+    {
+      var root :
+        Node__46230540<Principal, List__415060402<Transaction__865268250>>;
+      var size : Nat__490723111
+    };
+  stable var wallets :
+    {var root : Node__46230540<Principal, Nat>; var size : Nat__490723111}
+});

@@ -1,0 +1,262 @@
+import type { backendInterface } from "../backend";
+import type {
+  Match,
+  Contest,
+  FantasyTeam,
+  ContestEntry,
+  LeaderboardEntry,
+  Transaction,
+  UserProfile,
+  StripeSessionStatus,
+} from "../backend";
+import type { Player } from "../types";
+import { ContestType, MatchStatus, PlayerRole, Sport, TransactionKind } from "../backend";
+
+const MOCK_PRINCIPAL = { toText: () => "aaaaa-aa" } as any;
+
+const TEAM_LOGOS: Record<string, string> = {
+  MI: "https://upload.wikimedia.org/wikipedia/en/thumb/c/cd/Mumbai_Indians_Logo.svg/1200px-Mumbai_Indians_Logo.svg.png",
+  CSK: "https://upload.wikimedia.org/wikipedia/en/thumb/2/2b/Chennai_Super_Kings_Logo.svg/1200px-Chennai_Super_Kings_Logo.svg.png",
+  RCB: "https://upload.wikimedia.org/wikipedia/en/thumb/2/2a/Royal_Challengers_Bangalore_2020.svg/1200px-Royal_Challengers_Bangalore_2020.svg.png",
+  KKR: "https://upload.wikimedia.org/wikipedia/en/thumb/4/4c/Kolkata_Knight_Riders_Logo.svg/1200px-Kolkata_Knight_Riders_Logo.svg.png",
+  DC: "https://upload.wikimedia.org/wikipedia/en/thumb/f/f5/Delhi_Capitals_Logo.svg/1200px-Delhi_Capitals_Logo.svg.png",
+  MU: "https://upload.wikimedia.org/wikipedia/en/thumb/7/7a/Manchester_United_FC_crest.svg/1200px-Manchester_United_FC_crest.svg.png",
+  MC: "https://upload.wikimedia.org/wikipedia/en/thumb/e/eb/Manchester_City_FC_badge.svg/1200px-Manchester_City_FC_badge.svg.png",
+  TT: "https://upload.wikimedia.org/wikipedia/en/thumb/7/7a/Tamil_Thalaivas_logo.svg/1200px-Tamil_Thalaivas_logo.svg.png",
+  UM: "https://upload.wikimedia.org/wikipedia/en/thumb/3/3a/U_Mumba_logo.svg/1200px-U_Mumba_logo.svg.png",
+  MFC: "https://upload.wikimedia.org/wikipedia/en/thumb/7/7a/Mumbai_City_FC_logo.svg/1200px-Mumbai_City_FC_logo.svg.png",
+  BFC: "https://upload.wikimedia.org/wikipedia/en/thumb/5/5b/Bengaluru_FC_logo.svg/1200px-Bengaluru_FC_logo.svg.png",
+  PP: "https://upload.wikimedia.org/wikipedia/en/thumb/a/a3/Patna_Pirates_logo.svg/1200px-Patna_Pirates_logo.svg.png",
+  BW: "https://upload.wikimedia.org/wikipedia/en/thumb/2/2e/Bengal_Warriors_logo.svg/1200px-Bengal_Warriors_logo.svg.png",
+};
+
+const mockMatches: Match[] = [
+  {
+    id: BigInt(1),
+    sport: Sport.Cricket,
+    teamA: { name: "Mumbai Indians", code: "MI", logo: TEAM_LOGOS.MI },
+    teamB: { name: "Chennai Super Kings", code: "CSK", logo: TEAM_LOGOS.CSK },
+    venue: "Wankhede Stadium",
+    startTime: BigInt(Date.now() * 1_000_000 + 3600 * 1_000_000_000),
+    status: MatchStatus.Live,
+    scoreA: "142/4 (16.2)",
+    scoreB: "Yet to bat",
+    lastUpdated: BigInt(Date.now() * 1_000_000),
+  },
+  {
+    id: BigInt(2),
+    sport: Sport.Cricket,
+    teamA: { name: "Royal Challengers", code: "RCB", logo: TEAM_LOGOS.RCB },
+    teamB: { name: "Kolkata Knight Riders", code: "KKR", logo: TEAM_LOGOS.KKR },
+    venue: "Chinnaswamy Stadium",
+    startTime: BigInt(Date.now() * 1_000_000 + 7200 * 1_000_000_000),
+    status: MatchStatus.Upcoming,
+    lastUpdated: BigInt(Date.now() * 1_000_000),
+  },
+  {
+    id: BigInt(6),
+    sport: Sport.Football,
+    teamA: { name: "Manchester United", code: "MU", logo: TEAM_LOGOS.MU },
+    teamB: { name: "Manchester City", code: "MC", logo: TEAM_LOGOS.MC },
+    venue: "Old Trafford",
+    startTime: BigInt(Date.now() * 1_000_000 + 5400 * 1_000_000_000),
+    status: MatchStatus.Live,
+    scoreA: "1",
+    scoreB: "0",
+    lastUpdated: BigInt(Date.now() * 1_000_000),
+  },
+  {
+    id: BigInt(9),
+    sport: Sport.Kabaddi,
+    teamA: { name: "Tamil Thalaivas", code: "TT", logo: TEAM_LOGOS.TT },
+    teamB: { name: "U Mumba", code: "UM", logo: TEAM_LOGOS.UM },
+    venue: "Jawaharlal Nehru Indoor Stadium",
+    startTime: BigInt(Date.now() * 1_000_000 + 3600 * 1_000_000_000),
+    status: MatchStatus.Live,
+    scoreA: "28",
+    scoreB: "22",
+    lastUpdated: BigInt(Date.now() * 1_000_000),
+  },
+];
+
+const mockContests: Contest[] = [
+  {
+    id: BigInt(1),
+    matchId: BigInt(1),
+    name: "Mega League",
+    contestType: ContestType.MegaLeague,
+    entryFee: BigInt(49),
+    prizePool: BigInt(5000),
+    maxEntries: BigInt(100),
+    filledSpots: BigInt(67),
+    prizeBreakdown: [[BigInt(1), BigInt(2500)], [BigInt(2), BigInt(1500)], [BigInt(3), BigInt(1000)]],
+    createdAt: BigInt(Date.now() * 1_000_000),
+  },
+  {
+    id: BigInt(2),
+    matchId: BigInt(1),
+    name: "Small League",
+    contestType: ContestType.MiniLeague,
+    entryFee: BigInt(19),
+    prizePool: BigInt(1000),
+    maxEntries: BigInt(50),
+    filledSpots: BigInt(23),
+    prizeBreakdown: [[BigInt(1), BigInt(500)], [BigInt(2), BigInt(300)], [BigInt(3), BigInt(200)]],
+    createdAt: BigInt(Date.now() * 1_000_000),
+  },
+  {
+    id: BigInt(3),
+    matchId: BigInt(1),
+    name: "Practice Contest",
+    contestType: ContestType.Practice,
+    entryFee: BigInt(0),
+    prizePool: BigInt(0),
+    maxEntries: BigInt(200),
+    filledSpots: BigInt(45),
+    prizeBreakdown: [],
+    createdAt: BigInt(Date.now() * 1_000_000),
+  },
+  {
+    id: BigInt(4),
+    matchId: BigInt(1),
+    name: "Head to Head",
+    contestType: ContestType.Head2Head,
+    entryFee: BigInt(99),
+    prizePool: BigInt(180),
+    maxEntries: BigInt(2),
+    filledSpots: BigInt(1),
+    prizeBreakdown: [[BigInt(1), BigInt(180)]],
+    createdAt: BigInt(Date.now() * 1_000_000),
+  },
+  {
+    id: BigInt(5),
+    matchId: BigInt(1),
+    name: "Grand League",
+    contestType: ContestType.MegaLeague,
+    entryFee: BigInt(499),
+    prizePool: BigInt(50000),
+    maxEntries: BigInt(200),
+    filledSpots: BigInt(134),
+    prizeBreakdown: [[BigInt(1), BigInt(25000)], [BigInt(2), BigInt(15000)], [BigInt(3), BigInt(10000)]],
+    createdAt: BigInt(Date.now() * 1_000_000),
+  },
+];
+
+const PLAYER_AVATARS: Record<string, string> = {
+  "Virat Kohli": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/The_President%2C_Shri_Pranab_Mukherjee_presenting_the_Padma_Shri_Award_to_Shri_Virat_Kohli%2C_at_a_Civil_Investiture_Ceremony%2C_at_Rashtrapati_Bhavan%2C_in_New_Delhi_on_March_30%2C_2017_%28cropped%29.jpg/440px-thumbnail.jpg",
+  "Rohit Sharma": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Rohit_Sharma_November_2016_%28cropped%29.jpg/440px-Rohit_Sharma_November_2016_%28cropped%29.jpg",
+  "MS Dhoni": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Mahendra_Singh_Dhoni_January_2016_%28cropped%29.jpg/440px-Mahendra_Singh_Dhoni_January_2016_%28cropped%29.jpg",
+  "Jasprit Bumrah": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Jasprit_Bumrah_%28cropped%29.jpg/440px-Jasprit_Bumrah_%28cropped%29.jpg",
+  "Ravindra Jadeja": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Ravindra_Jadeja_in_2018.jpg/440px-Ravindra_Jadeja_in_2018.jpg",
+  "AB de Villiers": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/AB_de_Villiers_2018.jpg/440px-AB_de_Villiers_2018.jpg",
+  "Andre Russell": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Andre_Russell_2018.jpg/440px-Andre_Russell_2018.jpg",
+  "KL Rahul": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/KL_Rahul_2018.jpg/440px-KL_Rahul_2018.jpg",
+  "Ishan Kishan": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Ishan_Kishan_IPL_2022.jpg/220px-Ishan_Kishan_IPL_2022.jpg",
+  "Suryakumar Yadav": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/Suryakumar_Yadav_IPL_2022.jpg/220px-Suryakumar_Yadav_IPL_2022.jpg",
+  "Kieron Pollard": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Kieron_Pollard.jpg/220px-Kieron_Pollard.jpg",
+  "Trent Boult": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Trent_Boult_IPL_2022.jpg/220px-Trent_Boult_IPL_2022.jpg",
+  "Ruturaj Gaikwad": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e2/Ruturaj_Gaikwad_IPL_2022.jpg/220px-Ruturaj_Gaikwad_IPL_2022.jpg",
+  "Devon Conway": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Devon_Conway_IPL.jpg/220px-Devon_Conway_IPL.jpg",
+  "Deepak Chahar": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Deepak_Chahar_IPL.jpg/220px-Deepak_Chahar_IPL.jpg",
+  "Marcus Rashford": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Marcus_Rashford_2018.jpg/440px-Marcus_Rashford_2018.jpg",
+  "Erling Haaland": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/Erling_Haaland_2023.jpg/440px-Erling_Haaland_2023.jpg",
+  "Pardeep Narwal": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Pardeep_Narwal_2019.jpg/440px-Pardeep_Narwal_2019.jpg",
+  "Fazel Atrachali": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Fazel_Atrachali_2019.jpg/440px-Fazel_Atrachali_2019.jpg",
+};
+
+const mockPlayers: Player[] = [
+  { id: BigInt(1), matchId: BigInt(1), name: "Rohit Sharma", team: "MI", role: PlayerRole.Batsman, credit: 9.5, selPct: 82.0, points: 45.5, avatar: PLAYER_AVATARS["Rohit Sharma"] },
+  { id: BigInt(2), matchId: BigInt(1), name: "Ishan Kishan", team: "MI", role: PlayerRole.WicketKeeper, credit: 8.5, selPct: 61.0, points: 32.0, avatar: PLAYER_AVATARS["Ishan Kishan"] },
+  { id: BigInt(3), matchId: BigInt(1), name: "Suryakumar Yadav", team: "MI", role: PlayerRole.Batsman, credit: 9.0, selPct: 74.0, points: 38.5, avatar: PLAYER_AVATARS["Suryakumar Yadav"] },
+  { id: BigInt(4), matchId: BigInt(1), name: "Kieron Pollard", team: "MI", role: PlayerRole.AllRounder, credit: 8.0, selPct: 55.0, points: 28.0, avatar: PLAYER_AVATARS["Kieron Pollard"] },
+  { id: BigInt(5), matchId: BigInt(1), name: "Jasprit Bumrah", team: "MI", role: PlayerRole.Bowler, credit: 9.5, selPct: 88.0, points: 52.0, avatar: PLAYER_AVATARS["Jasprit Bumrah"] },
+  { id: BigInt(6), matchId: BigInt(1), name: "Trent Boult", team: "MI", role: PlayerRole.Bowler, credit: 8.5, selPct: 48.0, points: 24.5, avatar: PLAYER_AVATARS["Trent Boult"] },
+  { id: BigInt(7), matchId: BigInt(1), name: "MS Dhoni", team: "CSK", role: PlayerRole.WicketKeeper, credit: 9.5, selPct: 91.0, points: 60.0, avatar: PLAYER_AVATARS["MS Dhoni"] },
+  { id: BigInt(8), matchId: BigInt(1), name: "Ruturaj Gaikwad", team: "CSK", role: PlayerRole.Batsman, credit: 9.0, selPct: 70.0, points: 41.0, avatar: PLAYER_AVATARS["Ruturaj Gaikwad"] },
+  { id: BigInt(9), matchId: BigInt(1), name: "Devon Conway", team: "CSK", role: PlayerRole.Batsman, credit: 8.5, selPct: 58.0, points: 35.0, avatar: PLAYER_AVATARS["Devon Conway"] },
+  { id: BigInt(10), matchId: BigInt(1), name: "Ravindra Jadeja", team: "CSK", role: PlayerRole.AllRounder, credit: 9.0, selPct: 79.0, points: 48.0, avatar: PLAYER_AVATARS["Ravindra Jadeja"] },
+  { id: BigInt(11), matchId: BigInt(1), name: "Deepak Chahar", team: "CSK", role: PlayerRole.Bowler, credit: 8.0, selPct: 52.0, points: 30.0, avatar: PLAYER_AVATARS["Deepak Chahar"] },
+];
+
+const mockFantasyTeam: FantasyTeam = {
+  id: BigInt(1),
+  owner: MOCK_PRINCIPAL,
+  matchId: BigInt(1),
+  name: "My Team 1",
+  playerIds: [BigInt(1), BigInt(2), BigInt(3), BigInt(4), BigInt(5), BigInt(6), BigInt(7), BigInt(8), BigInt(9), BigInt(10), BigInt(11)],
+  captainId: BigInt(7),
+  viceCaptainId: BigInt(1),
+  totalPoints: 0,
+  createdAt: BigInt(Date.now() * 1_000_000),
+};
+
+const mockContestEntry: ContestEntry = {
+  contestId: BigInt(1),
+  owner: MOCK_PRINCIPAL,
+  joinedAt: BigInt(Date.now() * 1_000_000),
+  rank: BigInt(3),
+  prize: BigInt(0),
+  teamId: BigInt(1),
+  points: 245.5,
+};
+
+const mockLeaderboard: LeaderboardEntry[] = [
+  { rank: BigInt(1), principal: MOCK_PRINCIPAL, teamName: "Champions XI", points: 312.5, prize: BigInt(2500) },
+  { rank: BigInt(2), principal: MOCK_PRINCIPAL, teamName: "Power Play", points: 298.0, prize: BigInt(1500) },
+  { rank: BigInt(3), principal: MOCK_PRINCIPAL, teamName: "My Team 1", points: 245.5, prize: BigInt(1000) },
+];
+
+const mockTransactions: Transaction[] = [
+  {
+    id: BigInt(1),
+    owner: MOCK_PRINCIPAL,
+    kind: TransactionKind.Deposit,
+    amount: BigInt(500),
+    note: "Wallet top-up",
+    timestamp: BigInt(Date.now() * 1_000_000 - 86400 * 1_000_000_000),
+  },
+  {
+    id: BigInt(2),
+    owner: MOCK_PRINCIPAL,
+    kind: TransactionKind.ContestEntry,
+    amount: BigInt(49),
+    note: "Joined contest Mega League",
+    timestamp: BigInt(Date.now() * 1_000_000 - 3600 * 1_000_000_000),
+  },
+];
+
+const mockProfile: UserProfile = {
+  principal: MOCK_PRINCIPAL,
+  username: "FantasyPro",
+  joinedAt: BigInt(Date.now() * 1_000_000 - 30 * 86400 * 1_000_000_000),
+  kycDone: false,
+};
+
+export const mockBackend: backendInterface = {
+  addSampleContest: async () => true,
+  confirmPayment: async () => true,
+  createCheckoutSession: async () => "mock_session_id_abc123",
+  createTeam: async () => mockFantasyTeam,
+  getContest: async () => mockContests[0],
+  getContestHistory: async () => [mockContestEntry],
+  getContests: async () => mockContests,
+  getLeaderboard: async () => mockLeaderboard,
+  getMatch: async () => mockMatches[0],
+  getMatches: async () => mockMatches,
+  getMyTeams: async () => [mockFantasyTeam],
+  getPlayers: async () => mockPlayers,
+  getStripeSessionStatus: async (): Promise<StripeSessionStatus> => ({
+    __kind__: "completed",
+    completed: { userPrincipal: "aaaaa-aa", response: "ok" },
+  }),
+  getTransactions: async () => mockTransactions,
+  getUserProfile: async () => mockProfile,
+  getWalletBalance: async () => BigInt(451),
+  isStripeConfigured: async () => false,
+  joinContest: async () => mockContestEntry,
+  refreshLiveScores: async () => undefined,
+  setStripeConfiguration: async () => undefined,
+  setUserProfile: async () => mockProfile,
+  transform: async (input) => ({ status: BigInt(200), body: input.response.body, headers: [] }),
+  withdrawRequest: async () => true,
+};

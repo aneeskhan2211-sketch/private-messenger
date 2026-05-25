@@ -90,6 +90,19 @@ export default {
         lg: "var(--shadow-lg)",
         xl: "var(--shadow-xl)",
         "2xl": "var(--shadow-2xl)",
+        "card-elevated": "0 8px 32px oklch(0 0 0 / 0.25)",
+        "glow-orange": "0 0 24px oklch(0.62 0.22 35 / 0.4)",
+        "sport-glow": "0 0 16px oklch(0.62 0.22 35 / 0.3), inset 0 1px 0 oklch(0.62 0.22 35 / 0.2)",
+      },
+      colors: {
+        "mi-blue": "var(--mi-blue)",
+        "csk-yellow": "var(--csk-yellow)",
+        "rcb-red": "var(--rcb-red)",
+        "kkr-purple": "var(--kkr-purple)",
+        "role-bat": "var(--role-bat)",
+        "role-bowl": "var(--role-bowl)",
+        "role-ar": "var(--role-ar)",
+        "role-wk": "var(--role-wk)",
       },
       keyframes: {
         float: {
@@ -129,6 +142,10 @@ export default {
           "50%": { transform: "scale(1.4)" },
           "100%": { transform: "scale(1)" },
         },
+        "live-pulse": {
+          "0%, 100%": { opacity: "1", transform: "scale(1)" },
+          "50%": { opacity: "0.5", transform: "scale(1.3)" },
+        },
       },
       animation: {
         float: "float 5s ease-in-out infinite",
@@ -145,6 +162,7 @@ export default {
         "typing-dot-2": "typing-dot 1.2s ease-in-out 0.2s infinite",
         "typing-dot-3": "typing-dot 1.2s ease-in-out 0.4s infinite",
         "emoji-pop": "emoji-pop 0.3s ease-out",
+        "live-pulse": "live-pulse 1.5s ease-in-out infinite",
       },
     },
   },

@@ -1,243 +1,174 @@
 import Map "mo:core/Map";
 import List "mo:core/List";
 import Runtime "mo:core/Runtime";
+import Migration "migration";
 import Time "mo:core/Time";
-import Text "mo:core/Text";
+import Principal "mo:core/Principal";
 import Nat "mo:core/Nat";
-import Int "mo:core/Int";
-import P "mo:core/Principal";
-import Storage "blob-storage/Storage";
-import MixinStorage "blob-storage/Mixin";
-import OutCall "http-outcalls/outcall";
+import OutCall "mo:caffeineai-http-outcalls/outcall";
+import Stripe "mo:caffeineai-stripe/stripe";
 
+(with migration = Migration.run)
 actor {
-  include MixinStorage();
 
-  // Types
+  // ── Types ──────────────────────────────────────────────────────────────────
 
-  type ContactStatus = {
-    #Pending;
-    #Accepted;
-    #Blocked;
+  public type MatchStatus = {
+    #Upcoming;
+    #Live;
+    #Completed;
+    #Cancelled;
   };
 
-  type Contact = {
-    principal : Principal;
-    status : ContactStatus;
-    addedAt : Int;
+  public type Sport = {
+    #Cricket;
+    #Football;
+    #Kabaddi;
   };
 
-  type MessageType = {
-    #Text;
-    #Image;
-    #File;
-    #Audio;
-    #Video;
-  };
-
-  type Message = {
-    id : Nat;
-    conversationId : Nat;
-    sender : Principal;
-    content : Text;
-    messageType : MessageType;
-    mediaBlob : ?Storage.ExternalBlob;
-    mediaName : ?Text;
-    mediaSize : ?Nat64;
-    replyToId : ?Nat;
-    timestamp : Int;
-    deleted : Bool;
-    reactions : [(Principal, Text)];
-  };
-
-  type ConversationType = {
-    #Direct;
-    #Group;
-  };
-
-  type GroupInfo = {
+  public type Team = {
     name : Text;
-    avatar : ?Storage.ExternalBlob;
-    admin : Principal;
-  };
-
-  type Conversation = {
-    id : Nat;
-    conversationType : ConversationType;
-    groupInfo : ?GroupInfo;
-    createdAt : Int;
-  };
-
-  type ConversationPreview = {
-    id : Nat;
-    conversationType : ConversationType;
-    groupInfo : ?GroupInfo;
-    lastMessageTime : ?Int;
-    unreadCount : Nat;
-    members : [PublicProfile];
-  };
-
-  type PublicProfile = {
-    principal : Principal;
-    name : Text;
-    bio : Text;
-    avatar : ?Storage.ExternalBlob;
-    lastSeen : Int;
-  };
-
-  type Profile = {
-    name : Text;
-    bio : Text;
-    avatar : ?Storage.ExternalBlob;
-    lastSeen : Int;
-    email : ?Text;
-    emailVerified : Bool;
-    twoFactorEnabled : Bool;
-  };
-
-  type StatusUpdate = {
-    id : Nat;
-    author : Principal;
-    content : Text;
-    mediaBlob : ?Storage.ExternalBlob;
-    postedAt : Int;
-    expiresAt : Int;
-    reactions : [(Principal, Text)];
-  };
-
-  type NotificationKind = {
-    #NewMessage;
-    #Mention;
-    #ContactRequest;
-    #ContactAccepted;
-    #GroupInvite;
-    #StatusReaction;
-  };
-
-  type Notification = {
-    id : Nat;
-    kind : NotificationKind;
-    timestamp : Int;
-    read : Bool;
-    conversationId : ?Nat;
-    fromPrincipal : ?Principal;
-  };
-
-  type DisappearingTimer = {
-    #Off;
-    #Hours24;
-    #Days7;
-    #Days30;
-  };
-
-  type Report = {
-    reporter : Principal;
-    reported : Principal;
-    reason : Text;
-    timestamp : Int;
-  };
-
-  type WrappedGroupKey = {
-    encryptedKey : Blob;
-    wrappedBy : Principal;
-  };
-
-  type VetKdKeyId = {
-    curve : { #bls12_381_g2 };
-    name : Text;
-  };
-
-  type VetKdApi = actor {
-    vetkd_public_key : ({
-      canister_id : ?Principal;
-      context : Blob;
-      key_id : VetKdKeyId;
-    }) -> async ({ public_key : Blob });
-    vetkd_derive_key : ({
-      context : Blob;
-      input : Blob;
-      key_id : VetKdKeyId;
-      transport_public_key : Blob;
-    }) -> async ({ encrypted_key : Blob });
-  };
-
-  type EncryptedEmailConfig = {
-    encryptedApiKey : Blob;
-    senderEmail : Text;
-  };
-
-  // State
-
-  var userProfiles : Map.Map<Principal, Profile> = Map.empty();
-  var userContacts : Map.Map<Principal, Map.Map<Principal, Contact>> = Map.empty();
-  var conversations : Map.Map<Nat, Conversation> = Map.empty();
-  var conversationMessages : Map.Map<Nat, List.List<Message>> = Map.empty();
-  var conversationMembers : Map.Map<Nat, Map.Map<Principal, Bool>> = Map.empty();
-  var userConversations : Map.Map<Principal, Map.Map<Nat, Bool>> = Map.empty();
-  var readCursors : Map.Map<Principal, Map.Map<Nat, Nat>> = Map.empty();
-  var userStatuses : Map.Map<Principal, List.List<StatusUpdate>> = Map.empty();
-  var blockedUsers : Map.Map<Principal, Map.Map<Principal, Bool>> = Map.empty();
-  var reports : List.List<Report> = List.empty();
-  var conversationTimers : Map.Map<Nat, DisappearingTimer> = Map.empty();
-  var userNotifications : Map.Map<Principal, List.List<Notification>> = Map.empty();
-
-  var nextConversationId : Nat = 1;
-  var nextMessageId : Nat = 1;
-  var nextStatusId : Nat = 1;
-  var nextNotificationId : Nat = 1;
-  // Email 2FA state
-
-  type PendingOtp = {
     code : Text;
-    email : Text;
-    expiry : Int;
-    attempts : Nat;
+    logo : ?Text;
   };
 
-  var pendingOtps : Map.Map<Principal, PendingOtp> = Map.empty();
-
-  // Typing indicators (transient — not persisted)
-  // Maps conversationId -> Map<Principal, lastTypingTimestamp>
-  transient var typingIndicators : Map.Map<Nat, Map.Map<Principal, Int>> = Map.empty();
-
-  // File storage state (kept from template)
-  type FileId = Nat;
-  type FileMetadata = {
-    id : FileId;
-    name : Text;
-    size : Nat64;
-    uploadDate : Int;
-    fileType : Text;
-    blob : Storage.ExternalBlob;
+  public type Match = {
+    id          : Nat;
+    sport       : Sport;
+    teamA       : Team;
+    teamB       : Team;
+    venue       : Text;
+    startTime   : Int;
+    status      : MatchStatus;
+    scoreA      : ?Text;
+    scoreB      : ?Text;
+    lastUpdated : Int;
   };
-  var userFiles : Map.Map<Principal, Map.Map<FileId, FileMetadata>> = Map.empty();
-  var userNextFileId : Map.Map<Principal, Nat> = Map.empty();
 
-  // E2EE state
-  var userPublicKeys : Map.Map<Principal, Blob> = Map.empty();
-  var conversationGroupKeys : Map.Map<Nat, Map.Map<Principal, WrappedGroupKey>> = Map.empty();
+  public type PlayerRole = {
+    #WicketKeeper;
+    #Batsman;
+    #AllRounder;
+    #Bowler;
+    #Goalkeeper;
+    #Defender;
+    #Midfielder;
+    #Forward;
+    #Raider;
+    #AllRounderKabaddi;
+    #Defender2;
+  };
 
-  // vetKD encrypted email config
-  var userEncryptedEmailConfigs : Map.Map<Principal, EncryptedEmailConfig> = Map.empty();
+  public type Player = {
+    id      : Nat;
+    matchId : Nat;
+    name    : Text;
+    team    : Text;
+    role    : PlayerRole;
+    credit  : Float;
+    selPct  : Float;
+    points  : Float;
+  };
 
-  // Constants
+  public type FantasyTeam = {
+    id            : Nat;
+    owner         : Principal;
+    matchId       : Nat;
+    name          : Text;
+    playerIds     : [Nat];
+    captainId     : Nat;
+    viceCaptainId : Nat;
+    totalPoints   : Float;
+    createdAt     : Int;
+  };
 
-  let vetKdApi : VetKdApi = actor ("aaaaa-aa");
-  let VETKD_KEY_NAME = "dfx_test_key";
+  public type ContestType = {
+    #Head2Head;
+    #MiniLeague;
+    #MegaLeague;
+    #Practice;
+  };
 
-  let MAX_MESSAGE_LENGTH = 10_000;
-  let MAX_FILE_NAME_LENGTH = 255;
-  let MAX_FILE_SIZE : Nat64 = 10_485_760; // 10 MB
-  let MAX_STATUS_LENGTH = 500;
-  let MAX_GROUP_NAME_LENGTH = 100;
-  let MAX_OTP_ATTEMPTS = 5;
-  let MAX_IMPORT_CONTACTS = 100;
-  let MAX_GROUP_MEMBERS = 256;
-  let MAX_MENTIONED_PRINCIPALS = 50;
-  let MAX_REPORT_REASON_LENGTH = 1000;
-  let MAX_NOTIFICATIONS = 200;
+  public type Contest = {
+    id             : Nat;
+    matchId        : Nat;
+    name           : Text;
+    contestType    : ContestType;
+    entryFee       : Nat;
+    prizePool      : Nat;
+    maxEntries     : Nat;
+    filledSpots    : Nat;
+    prizeBreakdown : [(Nat, Nat)];
+    createdAt      : Int;
+  };
 
-  // Helpers
+  public type ContestEntry = {
+    contestId : Nat;
+    teamId    : Nat;
+    owner     : Principal;
+    rank      : ?Nat;
+    points    : Float;
+    prize     : Nat;
+    joinedAt  : Int;
+  };
+
+  public type LeaderboardEntry = {
+    rank      : Nat;
+    principal : Principal;
+    teamName  : Text;
+    points    : Float;
+    prize     : Nat;
+  };
+
+  public type TransactionKind = {
+    #Deposit;
+    #Withdrawal;
+    #ContestEntry;
+    #PrizeCredit;
+    #Refund;
+  };
+
+  public type Transaction = {
+    id        : Nat;
+    owner     : Principal;
+    kind      : TransactionKind;
+    amount    : Nat;
+    note      : Text;
+    timestamp : Int;
+  };
+
+  public type UserProfile = {
+    principal : Principal;
+    username  : Text;
+    phone     : ?Text;
+    kycDone   : Bool;
+    joinedAt  : Int;
+  };
+
+  // ── State ──────────────────────────────────────────────────────────────────
+
+  var matches      : Map.Map<Nat, Match>                        = Map.empty();
+  var players      : Map.Map<Nat, Player>                       = Map.empty();
+  var teams        : Map.Map<Nat, FantasyTeam>                  = Map.empty();
+  var contests     : Map.Map<Nat, Contest>                      = Map.empty();
+  var entries      : Map.Map<Nat, List.List<ContestEntry>>      = Map.empty();
+  var wallets      : Map.Map<Principal, Nat>                    = Map.empty();
+  var transactions : Map.Map<Principal, List.List<Transaction>> = Map.empty();
+  var profiles     : Map.Map<Principal, UserProfile>            = Map.empty();
+
+  let state = {
+    var nextMatchId   : Nat = 1;
+    var nextPlayerId  : Nat = 1;
+    var nextTeamId    : Nat = 1;
+    var nextContestId : Nat = 1;
+    var nextTxId      : Nat = 1;
+  };
+
+  var stripeConfig    : ?Stripe.StripeConfiguration = null;
+  var lastHeartbeat   : Int = 0;
+  var seedDone        : Bool = false;
+
+  // ── Helpers ────────────────────────────────────────────────────────────────
 
   func requireAuth(caller : Principal) {
     if (caller.isAnonymous()) {
@@ -245,1894 +176,661 @@ actor {
     };
   };
 
-  func getMap<V>(store : Map.Map<Principal, Map.Map<Principal, V>>, user : Principal) : Map.Map<Principal, V> {
-    switch (store.get(user)) {
-      case (?m) { m };
-      case (null) {
-        let m = Map.empty<Principal, V>();
-        store.add(user, m);
-        m;
-      };
-    };
-  };
+  // ── Seed helpers ──────────────────────────────────────────────────────────
 
-  func getNatMap<V>(store : Map.Map<Principal, Map.Map<Nat, V>>, user : Principal) : Map.Map<Nat, V> {
-    switch (store.get(user)) {
-      case (?m) { m };
-      case (null) {
-        let m = Map.empty<Nat, V>();
-        store.add(user, m);
-        m;
-      };
-    };
-  };
-
-  func getUserContacts(user : Principal) : Map.Map<Principal, Contact> {
-    getMap(userContacts, user);
-  };
-
-  func getUserConversations(user : Principal) : Map.Map<Nat, Bool> {
-    getNatMap(userConversations, user);
-  };
-
-  func getUserReadCursors(user : Principal) : Map.Map<Nat, Nat> {
-    getNatMap(readCursors, user);
-  };
-
-  func getConversationMembers(convId : Nat) : Map.Map<Principal, Bool> {
-    switch (conversationMembers.get(convId)) {
-      case (?m) { m };
-      case (null) {
-        let m = Map.empty<Principal, Bool>();
-        conversationMembers.add(convId, m);
-        m;
-      };
-    };
-  };
-
-  func getConversationMessages(convId : Nat) : List.List<Message> {
-    switch (conversationMessages.get(convId)) {
-      case (?l) { l };
-      case (null) {
-        let l = List.empty<Message>();
-        conversationMessages.add(convId, l);
-        l;
-      };
-    };
-  };
-
-  func isConversationMember(convId : Nat, user : Principal) : Bool {
-    let members = getConversationMembers(convId);
-    switch (members.get(user)) {
-      case (?_) { true };
-      case (null) { false };
-    };
-  };
-
-  func isBlocked(user : Principal, target : Principal) : Bool {
-    switch (blockedUsers.get(user)) {
-      case (?m) {
-        switch (m.get(target)) {
-          case (?_) { true };
-          case (null) { false };
-        };
-      };
-      case (null) { false };
-    };
-  };
-
-  func isAcceptedContact(user : Principal, target : Principal) : Bool {
-    let contacts = getUserContacts(user);
-    switch (contacts.get(target)) {
-      case (?c) {
-        switch (c.status) {
-          case (#Accepted) { true };
-          case (_) { false };
-        };
-      };
-      case (null) { false };
-    };
-  };
-
-  func toPublicProfile(p : Principal) : PublicProfile {
-    switch (userProfiles.get(p)) {
-      case (?prof) {
-        {
-          principal = p;
-          name = prof.name;
-          bio = prof.bio;
-          avatar = prof.avatar;
-          lastSeen = prof.lastSeen;
-        };
-      };
-      case (null) {
-        {
-          principal = p;
-          name = "Unknown";
-          bio = "";
-          avatar = null;
-          lastSeen = 0;
-        };
-      };
-    };
-  };
-
-  func getUserFiles(user : Principal) : Map.Map<FileId, FileMetadata> {
-    switch (userFiles.get(user)) {
-      case (?m) { m };
-      case (null) {
-        let m = Map.empty<FileId, FileMetadata>();
-        userFiles.add(user, m);
-        m;
-      };
-    };
-  };
-
-  func addNotification(user : Principal, kind : NotificationKind, convId : ?Nat, from : ?Principal) {
-    let notifs = switch (userNotifications.get(user)) {
-      case (?l) { l };
-      case (null) {
-        let l = List.empty<Notification>();
-        userNotifications.add(user, l);
-        l;
-      };
-    };
-    let id = nextNotificationId;
-    nextNotificationId += 1;
-    notifs.add({
+  func addMatch(sport : Sport, nameA : Text, codeA : Text, nameB : Text, codeB : Text, venue : Text, offsetSecs : Int, status : MatchStatus) {
+    let id = state.nextMatchId;
+    state.nextMatchId += 1;
+    let m : Match = {
       id;
-      kind;
-      timestamp = Time.now();
-      read = false;
-      conversationId = convId;
-      fromPrincipal = from;
-    });
-    // Cap notification list to prevent unbounded growth
-    if (notifs.size() > MAX_NOTIFICATIONS) {
-      let arr = notifs.toArray();
-      let pruned = List.empty<Notification>();
-      for (i in arr.keys()) {
-        if (i + MAX_NOTIFICATIONS >= arr.size()) {
-          pruned.add(arr[i]);
-        };
-      };
-      userNotifications.add(user, pruned);
+      sport;
+      teamA       = { name = nameA; code = codeA; logo = null };
+      teamB       = { name = nameB; code = codeB; logo = null };
+      venue;
+      startTime   = Time.now() + offsetSecs * 1_000_000_000;
+      status;
+      scoreA      = null;
+      scoreB      = null;
+      lastUpdated = Time.now();
     };
+    matches.add(id, m);
   };
 
-  func timerToNanos(timer : DisappearingTimer) : ?Int {
-    switch (timer) {
-      case (#Off) { null };
-      case (#Hours24) { ?(86_400_000_000_000) };
-      case (#Days7) { ?(604_800_000_000_000) };
-      case (#Days30) { ?(2_592_000_000_000_000) };
-    };
+  func addPlayer(matchId : Nat, name : Text, team : Text, role : PlayerRole, credit : Float, selPct : Float) {
+    let id = state.nextPlayerId;
+    state.nextPlayerId += 1;
+    let p : Player = { id; matchId; name; team; role; credit; selPct; points = 0.0 };
+    players.add(id, p);
   };
 
-  func genFileId(user : Principal) : Nat {
-    let id = switch (userNextFileId.get(user)) {
-      case (?id) { id };
-      case (null) { 1 };
+  func addContest(matchId : Nat, name : Text, ctype : ContestType, entryFee : Nat, prizePool : Nat, maxEntries : Nat) {
+    let id = state.nextContestId;
+    state.nextContestId += 1;
+    let c : Contest = {
+      id;
+      matchId;
+      name;
+      contestType    = ctype;
+      entryFee;
+      prizePool;
+      maxEntries;
+      filledSpots    = 0;
+      prizeBreakdown = [(1, prizePool * 50 / 100), (2, prizePool * 30 / 100), (3, prizePool * 20 / 100)];
+      createdAt      = Time.now();
     };
-    userNextFileId.add(user, id + 1);
-    id;
+    contests.add(id, c);
   };
 
-  // Email 2FA helpers
+  func seedData() {
+    if (seedDone) { return };
+    seedDone := true;
 
-  func escapeJsonString(s : Text) : Text {
-    var result = "";
-    for (c in s.chars()) {
-      switch (c) {
-        case ('\"') { result #= "\\\"" };
-        case ('\\') { result #= "\\\\" };
-        case ('\n') { result #= "\\n" };
-        case ('\r') { result #= "\\r" };
-        case ('\t') { result #= "\\t" };
-        case (_) { result #= Text.fromChar(c) };
+    // ── Cricket matches (5) ────────────────────────────────────────────────
+    addMatch(#Cricket, "Mumbai Indians", "MI", "Chennai Super Kings", "CSK", "Wankhede Stadium", 3600, #Live);
+    let m1 = state.nextMatchId - 1;
+    addMatch(#Cricket, "Royal Challengers", "RCB", "Delhi Capitals", "DC", "Chinnaswamy Stadium", 7200, #Upcoming);
+    let m2 = state.nextMatchId - 1;
+    addMatch(#Cricket, "Kolkata Knight Riders", "KKR", "Sunrisers Hyderabad", "SRH", "Eden Gardens", -3600, #Completed);
+    let m3 = state.nextMatchId - 1;
+    addMatch(#Cricket, "Punjab Kings", "PBKS", "Rajasthan Royals", "RR", "PCA Stadium", 10800, #Upcoming);
+    let m4 = state.nextMatchId - 1;
+    addMatch(#Cricket, "Lucknow Super Giants", "LSG", "Gujarat Titans", "GT", "BRSABV Ekana", 14400, #Upcoming);
+    let m5 = state.nextMatchId - 1;
+
+    // ── Football matches (3) ───────────────────────────────────────────────
+    addMatch(#Football, "Mumbai FC", "MFC", "Bengaluru FC", "BFC", "Mumbai Football Arena", 5400, #Live);
+    let f1 = state.nextMatchId - 1;
+    addMatch(#Football, "Kerala Blasters", "KBFC", "Hyderabad FC", "HFC", "Jawaharlal Nehru Stadium", 9000, #Upcoming);
+    let f2 = state.nextMatchId - 1;
+    addMatch(#Football, "ATK Mohun Bagan", "ATKMB", "Chennaiyin FC", "CFC", "Salt Lake Stadium", -1800, #Completed);
+    let f3 = state.nextMatchId - 1;
+
+    // ── Kabaddi matches (3) ────────────────────────────────────────────────
+    addMatch(#Kabaddi, "Patna Pirates", "PP", "Bengal Warriors", "BW", "Patna Indoor Stadium", 3600, #Live);
+    let k1 = state.nextMatchId - 1;
+    addMatch(#Kabaddi, "Dabang Delhi", "DD", "U Mumba", "UM", "Thyagaraj Sports Complex", 7200, #Upcoming);
+    let k2 = state.nextMatchId - 1;
+    addMatch(#Kabaddi, "Jaipur Pink Panthers", "JPP", "Telugu Titans", "TT", "Sawai Mansingh", 10800, #Upcoming);
+    let k3 = state.nextMatchId - 1;
+
+    // ── Cricket players for match m1 (MI vs CSK) ──────────────────────────
+    addPlayer(m1, "Rohit Sharma",    "MI",  #Batsman,      9.5, 82.0);
+    addPlayer(m1, "Ishan Kishan",    "MI",  #WicketKeeper, 8.5, 61.0);
+    addPlayer(m1, "Suryakumar Yadav","MI",  #Batsman,      9.0, 74.0);
+    addPlayer(m1, "Kieron Pollard",  "MI",  #AllRounder,   8.0, 55.0);
+    addPlayer(m1, "Jasprit Bumrah",  "MI",  #Bowler,       9.5, 88.0);
+    addPlayer(m1, "Trent Boult",     "MI",  #Bowler,       8.5, 48.0);
+    addPlayer(m1, "MS Dhoni",        "CSK", #WicketKeeper, 9.5, 91.0);
+    addPlayer(m1, "Ruturaj Gaikwad", "CSK", #Batsman,      9.0, 70.0);
+    addPlayer(m1, "Devon Conway",    "CSK", #Batsman,      8.5, 58.0);
+    addPlayer(m1, "Ravindra Jadeja", "CSK", #AllRounder,   9.0, 79.0);
+    addPlayer(m1, "Deepak Chahar",   "CSK", #Bowler,       8.0, 52.0);
+    addPlayer(m1, "Ambati Rayudu",   "CSK", #Batsman,      7.5, 40.0);
+    addPlayer(m1, "Dwayne Bravo",    "CSK", #AllRounder,   8.5, 60.0);
+    addPlayer(m1, "Tim David",       "MI",  #Batsman,      8.0, 44.0);
+    addPlayer(m1, "Murugan Ashwin",  "MI",  #Bowler,       7.0, 30.0);
+
+    // ── Cricket players for match m2 (RCB vs DC) ──────────────────────────
+    addPlayer(m2, "Virat Kohli",     "RCB", #Batsman,      10.0, 95.0);
+    addPlayer(m2, "Faf du Plessis",  "RCB", #Batsman,      9.0,  72.0);
+    addPlayer(m2, "Glenn Maxwell",   "RCB", #AllRounder,   9.0,  78.0);
+    addPlayer(m2, "Mohammed Siraj",  "RCB", #Bowler,       8.5,  64.0);
+    addPlayer(m2, "Dinesh Karthik",  "RCB", #WicketKeeper, 8.5,  55.0);
+    addPlayer(m2, "David Warner",    "DC",  #Batsman,      9.5,  80.0);
+    addPlayer(m2, "Prithvi Shaw",    "DC",  #Batsman,      8.0,  58.0);
+    addPlayer(m2, "Rishabh Pant",    "DC",  #WicketKeeper, 9.0,  85.0);
+    addPlayer(m2, "Axar Patel",      "DC",  #AllRounder,   8.5,  62.0);
+    addPlayer(m2, "Anrich Nortje",   "DC",  #Bowler,       8.5,  55.0);
+    addPlayer(m2, "Kagiso Rabada",   "DC",  #Bowler,       9.0,  70.0);
+    addPlayer(m2, "Wanindu Hasaranga","RCB", #AllRounder,  8.5,  60.0);
+    addPlayer(m2, "Harshal Patel",   "RCB", #Bowler,       8.0,  50.0);
+    addPlayer(m2, "Mitchell Marsh",  "DC",  #AllRounder,   8.0,  48.0);
+    addPlayer(m2, "Kuldeep Yadav",   "DC",  #Bowler,       8.0,  52.0);
+
+    // ── Football players for match f1 (MFC vs BFC) ────────────────────────
+    addPlayer(f1, "Gurpreet Singh",  "BFC", #Goalkeeper,   8.0, 55.0);
+    addPlayer(f1, "Rahul Bheke",     "BFC", #Defender,     7.0, 38.0);
+    addPlayer(f1, "Suresh Singh",    "BFC", #Defender,     7.0, 35.0);
+    addPlayer(f1, "Cleiton Silva",   "BFC", #Forward,      9.0, 72.0);
+    addPlayer(f1, "Prince Ibara",    "BFC", #Forward,      8.5, 60.0);
+    addPlayer(f1, "Lalengmawia",     "BFC", #Midfielder,   8.0, 55.0);
+    addPlayer(f1, "Amrinder Singh",  "MFC", #Goalkeeper,   7.5, 48.0);
+    addPlayer(f1, "Mourtada Fall",   "MFC", #Defender,     7.5, 45.0);
+    addPlayer(f1, "Mandar Rao Desai","MFC", #Defender,     7.0, 35.0);
+    addPlayer(f1, "Bipin Singh",     "MFC", #Midfielder,   8.0, 58.0);
+    addPlayer(f1, "Ahmed Jahouh",    "MFC", #Midfielder,   8.5, 62.0);
+    addPlayer(f1, "Igor Angulo",     "MFC", #Forward,      9.0, 70.0);
+    addPlayer(f1, "Anirudh Thapa",   "MFC", #Midfielder,   7.5, 42.0);
+    addPlayer(f1, "Bartholomew Ogbeche", "MFC", #Forward,  8.5, 65.0);
+    addPlayer(f1, "Edu Bedia",       "BFC", #Midfielder,   8.0, 50.0);
+
+    // ── Kabaddi players for match k1 (PP vs BW) ───────────────────────────
+    addPlayer(k1, "Pardeep Narwal",   "PP",  #Raider,            9.5, 88.0);
+    addPlayer(k1, "Monu Goyat",       "PP",  #Raider,            8.5, 62.0);
+    addPlayer(k1, "Neeraj Kumar",     "PP",  #Defender2,         8.0, 55.0);
+    addPlayer(k1, "Jaideep Kuldeep",  "PP",  #Defender2,         7.5, 42.0);
+    addPlayer(k1, "Hadi Oshtorak",    "PP",  #Defender2,         7.0, 38.0);
+    addPlayer(k1, "Sajin C",          "PP",  #AllRounderKabaddi, 7.5, 44.0);
+    addPlayer(k1, "Maninder Singh",   "BW",  #Raider,            9.0, 80.0);
+    addPlayer(k1, "Abozar Mighani",   "BW",  #Defender2,         8.5, 65.0);
+    addPlayer(k1, "K. Prapanjan",     "BW",  #Raider,            8.0, 58.0);
+    addPlayer(k1, "Mahender Singh",   "BW",  #Defender2,         7.5, 48.0);
+    addPlayer(k1, "Ran Singh",        "BW",  #Defender2,         7.0, 35.0);
+    addPlayer(k1, "Mohammad Esmaeil", "BW",  #Defender2,         7.0, 34.0);
+    addPlayer(k1, "Aman Antil",       "PP",  #AllRounderKabaddi, 7.5, 40.0);
+    addPlayer(k1, "Rinku Narwal",     "PP",  #Defender2,         7.0, 36.0);
+    addPlayer(k1, "Sushant Sail",     "BW",  #AllRounderKabaddi, 7.5, 42.0);
+
+    // ── Contests for cricket matches ───────────────────────────────────────
+    addContest(m1, "Mega League",       #MegaLeague,  49,  5000, 100);
+    addContest(m1, "Small League",      #MiniLeague,  19,  1000,  50);
+    addContest(m1, "Practice Contest",  #Practice,     0,     0, 200);
+    addContest(m1, "Head to Head",      #Head2Head,   99,   180,   2);
+    addContest(m1, "Grand League",      #MegaLeague, 499, 50000, 200);
+    addContest(m2, "Mega League",       #MegaLeague,  49,  5000, 100);
+    addContest(m2, "Practice Contest",  #Practice,     0,     0, 200);
+    addContest(m2, "Head to Head",      #Head2Head,   99,   180,   2);
+    addContest(m3, "Post-Match League", #MiniLeague,  19,   500,  50);
+    addContest(m3, "Practice Contest",  #Practice,     0,     0, 200);
+    addContest(m4, "Mega League",       #MegaLeague,  49,  5000, 100);
+    addContest(m4, "Practice Contest",  #Practice,     0,     0, 200);
+    addContest(m5, "Mega League",       #MegaLeague,  49,  5000, 100);
+
+    // ── Contests for football matches ──────────────────────────────────────
+    addContest(f1, "ISL Mega League",   #MegaLeague,  49,  5000, 100);
+    addContest(f1, "Practice Contest",  #Practice,     0,     0, 200);
+    addContest(f1, "Head to Head",      #Head2Head,   99,   180,   2);
+    addContest(f2, "ISL Mini League",   #MiniLeague,  19,  1000,  50);
+    addContest(f2, "Practice Contest",  #Practice,     0,     0, 200);
+    addContest(f3, "Post-Match",        #MiniLeague,  19,   500,  50);
+
+    // ── Contests for kabaddi matches ───────────────────────────────────────
+    addContest(k1, "PKL Mega League",   #MegaLeague,  49,  5000, 100);
+    addContest(k1, "Practice Contest",  #Practice,     0,     0, 200);
+    addContest(k2, "PKL Mini League",   #MiniLeague,  19,  1000,  50);
+    addContest(k2, "Practice Contest",  #Practice,     0,     0, 200);
+    addContest(k3, "PKL Mega League",   #MegaLeague,  49,  5000, 100);
+  };
+
+  system func postupgrade() {
+    seedData();
+  };
+
+  // ── Match endpoints ─────────────────────────────────────────────────────
+
+  public query func getMatches() : async [Match] {
+    var result : [Match] = [];
+    for ((_, m) in matches.entries()) {
+      result := result.concat([m]);
+    };
+    result;
+  };
+
+  public query func getMatch(matchId : Nat) : async ?Match {
+    matches.get(matchId);
+  };
+
+  // ── Player endpoints ────────────────────────────────────────────────────
+
+  public query func getPlayers(matchId : Nat) : async [Player] {
+    var result : [Player] = [];
+    for ((_, p) in players.entries()) {
+      if (p.matchId == matchId) {
+        result := result.concat([p]);
       };
     };
     result;
   };
 
-  func buildEmailPayload(senderEmail : Text, senderName : Text, to : Text, subject : Text, htmlContent : Text) : Text {
-    "{\"from\":\"" # escapeJsonString(senderName) # " <" # escapeJsonString(senderEmail) # ">\",\"to\":[\"" # escapeJsonString(to) # "\"],\"subject\":\"" # escapeJsonString(subject) # "\",\"html\":\"" # escapeJsonString(htmlContent) # "\"}";
-  };
+  // ── Fantasy team endpoints ───────────────────────────────────────────────
 
-  func generateOtp() : async Text {
-    let mgmt : actor { raw_rand : () -> async Blob } = actor ("aaaaa-aa");
-    let randBytes = await mgmt.raw_rand();
-    let iter = randBytes.vals();
-    var n : Nat = 0;
-    var i = 0;
-    while (i < 4) {
-      switch (iter.next()) {
-        case (?byte) { n := n * 256 + byte.toNat() };
-        case (null) {};
+  public shared ({ caller }) func createTeam(
+    matchId       : Nat,
+    name          : Text,
+    playerIds     : [Nat],
+    captainId     : Nat,
+    viceCaptainId : Nat,
+  ) : async FantasyTeam {
+    requireAuth(caller);
+    // Validate player count (11 players required)
+    if (playerIds.size() != 11) {
+      Runtime.trap("Team must have exactly 11 players");
+    };
+    // Validate budget cap (max 100 credits)
+    var totalCredit : Float = 0;
+    for (pid in playerIds.vals()) {
+      switch (players.get(pid)) {
+        case (?p) { totalCredit := totalCredit + p.credit };
+        case null  { Runtime.trap("Player not found: " # debug_show(pid)) };
       };
-      i += 1;
     };
-    let code = n % 1_000_000;
-    let raw = code.toText();
-    let padding = 6 - raw.size() : Nat;
-    var result = "";
-    var j = 0;
-    while (j < padding) {
-      result #= "0";
-      j += 1;
+    if (totalCredit > 100.0) {
+      Runtime.trap("Team exceeds 100 credit budget");
     };
-    result # raw;
+    let id = state.nextTeamId;
+    state.nextTeamId += 1;
+    let team : FantasyTeam = {
+      id;
+      owner         = caller;
+      matchId;
+      name;
+      playerIds;
+      captainId;
+      viceCaptainId;
+      totalPoints   = 0.0;
+      createdAt     = Time.now();
+    };
+    teams.add(id, team);
+    team;
   };
 
-  func cleanupExpiredMessages(convId : Nat) {
-    switch (conversationTimers.get(convId)) {
-      case (?timer) {
-        switch (timerToNanos(timer)) {
-          case (?dur) {
-            let now = Time.now();
-            let messages = getConversationMessages(convId);
-            let kept = List.empty<Message>();
-            for (msg in messages.values()) {
-              if (msg.timestamp + dur >= now) {
-                kept.add(msg);
-              };
-            };
-            conversationMessages.add(convId, kept);
-          };
-          case (null) {};
+  public query ({ caller }) func getMyTeams() : async [FantasyTeam] {
+    requireAuth(caller);
+    var result : [FantasyTeam] = [];
+    for ((_, t) in teams.entries()) {
+      if (t.owner == caller) {
+        result := result.concat([t]);
+      };
+    };
+    result;
+  };
+
+  // ── Contest endpoints ────────────────────────────────────────────────────
+
+  public query func getContests(matchId : Nat) : async [Contest] {
+    var result : [Contest] = [];
+    for ((_, c) in contests.entries()) {
+      if (c.matchId == matchId) {
+        result := result.concat([c]);
+      };
+    };
+    result;
+  };
+
+  public query func getContest(contestId : Nat) : async ?Contest {
+    contests.get(contestId);
+  };
+
+  public shared ({ caller }) func joinContest(contestId : Nat, teamId : Nat) : async ContestEntry {
+    requireAuth(caller);
+    let contest = switch (contests.get(contestId)) {
+      case (?c) { c };
+      case null  { Runtime.trap("Contest not found") };
+    };
+    // Verify team belongs to caller
+    let team = switch (teams.get(teamId)) {
+      case (?t) { t };
+      case null  { Runtime.trap("Team not found") };
+    };
+    if (team.owner != caller) {
+      Runtime.trap("Team does not belong to caller");
+    };
+    if (team.matchId != contest.matchId) {
+      Runtime.trap("Team is for a different match");
+    };
+    if (contest.filledSpots >= contest.maxEntries) {
+      Runtime.trap("Contest is full");
+    };
+    // Deduct entry fee from wallet
+    let balance = switch (wallets.get(caller)) {
+      case (?b) { b };
+      case null  { 0 };
+    };
+    if (balance < contest.entryFee) {
+      Runtime.trap("Insufficient wallet balance");
+    };
+    wallets.add(caller, balance - contest.entryFee);
+    // Record transaction
+    let txId = state.nextTxId;
+    state.nextTxId += 1;
+    let tx : Transaction = {
+      id        = txId;
+      owner     = caller;
+      kind      = #ContestEntry;
+      amount    = contest.entryFee;
+      note      = "Joined contest " # contest.name;
+      timestamp = Time.now();
+    };
+    let txList = switch (transactions.get(caller)) {
+      case (?lst) { lst };
+      case null    { List.empty<Transaction>() };
+    };
+    txList.add(tx);
+    transactions.add(caller, txList);
+    // Update contest filled spots
+    contests.add(contestId, { contest with filledSpots = contest.filledSpots + 1 });
+    let entry : ContestEntry = {
+      contestId;
+      teamId;
+      owner     = caller;
+      rank      = null;
+      points    = 0.0;
+      prize     = 0;
+      joinedAt  = Time.now();
+    };
+    let entryList = switch (entries.get(contestId)) {
+      case (?lst) { lst };
+      case null    { List.empty<ContestEntry>() };
+    };
+    entryList.add(entry);
+    entries.add(contestId, entryList);
+    entry;
+  };
+
+  public query func getLeaderboard(contestId : Nat) : async [LeaderboardEntry] {
+    let entryList = switch (entries.get(contestId)) {
+      case (?lst) { lst };
+      case null    { return [] };
+    };
+    var result : [LeaderboardEntry] = [];
+    var rank : Nat = 1;
+    for (e in entryList.values()) {
+      let teamName = switch (teams.get(e.teamId)) {
+        case (?t) { t.name };
+        case null  { "Unknown" };
+      };
+      let lb : LeaderboardEntry = {
+        rank      = rank;
+        principal = e.owner;
+        teamName;
+        points    = e.points;
+        prize     = e.prize;
+      };
+      result := result.concat([lb]);
+      rank += 1;
+    };
+    result;
+  };
+
+  // ── Wallet endpoints ────────────────────────────────────────────────────
+
+  public query ({ caller }) func getWalletBalance() : async Nat {
+    requireAuth(caller);
+    switch (wallets.get(caller)) {
+      case (?b) { b };
+      case null  { 0 };
+    };
+  };
+
+  public query ({ caller }) func getTransactions() : async [Transaction] {
+    requireAuth(caller);
+    switch (transactions.get(caller)) {
+      case (?lst) { lst.toArray() };
+      case null    { [] };
+    };
+  };
+
+  // ── Contest history ────────────────────────────────────────────────────
+
+  public query ({ caller }) func getContestHistory() : async [ContestEntry] {
+    requireAuth(caller);
+    var result : [ContestEntry] = [];
+    for ((_, entryList) in entries.entries()) {
+      for (e in entryList.values()) {
+        if (e.owner == caller) {
+          result := result.concat([e]);
         };
       };
-      case (null) {};
     };
+    result;
   };
+
+  // ── Profile endpoints ─────────────────────────────────────────────────
+
+  public query ({ caller }) func getUserProfile() : async ?UserProfile {
+    requireAuth(caller);
+    profiles.get(caller);
+  };
+
+  public shared ({ caller }) func setUserProfile(username : Text, phone : ?Text) : async UserProfile {
+    requireAuth(caller);
+    let existing = profiles.get(caller);
+    let joinedAt = switch (existing) {
+      case (?p) { p.joinedAt };
+      case null  { Time.now() };
+    };
+    let kycDone = switch (existing) {
+      case (?p) { p.kycDone };
+      case null  { false };
+    };
+    let profile : UserProfile = {
+      principal = caller;
+      username;
+      phone;
+      kycDone;
+      joinedAt;
+    };
+    profiles.add(caller, profile);
+    profile;
+  };
+
+  // ── Live scoring via HTTP outcalls (heartbeat) ────────────────────────
 
   public query func transform(input : OutCall.TransformationInput) : async OutCall.TransformationOutput {
     OutCall.transform(input);
   };
 
-  // Endpoints — Profile
-
-  public query ({ caller }) func getProfile() : async ?Profile {
-    requireAuth(caller);
-    userProfiles.get(caller);
-  };
-
-  public shared ({ caller }) func setProfile(name : Text, bio : Text, avatar : ?Storage.ExternalBlob) : async () {
-    requireAuth(caller);
-    if (name == "") {
-      Runtime.trap("Name cannot be empty");
-    };
-    if (name.size() > 100) {
-      Runtime.trap("Name must be 100 characters or fewer");
-    };
-    if (bio.size() > 500) {
-      Runtime.trap("Bio must be 500 characters or fewer");
-    };
-    let existing = userProfiles.get(caller);
-    let now = Time.now();
-    userProfiles.add(
-      caller,
-      {
-        name;
-        bio;
-        avatar;
-        lastSeen = now;
-        email = switch (existing) {
-          case (?p) { p.email };
-          case (null) { null };
+  func updatePlayerPointsFromScore(matchId : Nat, sport : Sport) {
+    // Mock score update: increment points based on sport type
+    for ((_, p) in players.entries()) {
+      if (p.matchId == matchId) {
+        let bonus : Float = switch sport {
+          case (#Cricket)  { if (p.role == #Batsman or p.role == #WicketKeeper) { 2.5 } else { 1.5 } };
+          case (#Football) { if (p.role == #Forward) { 3.0 } else { 1.0 } };
+          case (#Kabaddi)  { if (p.role == #Raider) { 3.5 } else { 1.5 } };
         };
-        emailVerified = switch (existing) {
-          case (?p) { p.emailVerified };
-          case (null) { false };
-        };
-        twoFactorEnabled = switch (existing) {
-          case (?p) { p.twoFactorEnabled };
-          case (null) { false };
-        };
-      },
-    );
-  };
-
-  public query ({ caller }) func getPublicProfile(target : Principal) : async PublicProfile {
-    requireAuth(caller);
-    toPublicProfile(target);
-  };
-
-  // Endpoints — Contact Management
-
-  public shared ({ caller }) func sendContactRequest(target : Principal) : async () {
-    requireAuth(caller);
-    if (caller == target) {
-      Runtime.trap("Cannot add yourself as a contact");
-    };
-    if (isBlocked(target, caller)) {
-      Runtime.trap("Cannot send request to this user");
-    };
-    let callerContacts = getUserContacts(caller);
-    switch (callerContacts.get(target)) {
-      case (?c) {
-        switch (c.status) {
-          case (#Accepted) { Runtime.trap("Already a contact") };
-          case (#Pending) { Runtime.trap("Request already sent") };
-          case (#Blocked) { Runtime.trap("User is blocked") };
-        };
-      };
-      case (null) {};
-    };
-    let now = Time.now();
-    // Initiator gets addedAt = now + 1 so getPendingRequests can distinguish sender from receiver
-    callerContacts.add(target, { principal = target; status = #Pending; addedAt = now + 1 });
-    let targetContacts = getUserContacts(target);
-    targetContacts.add(caller, { principal = caller; status = #Pending; addedAt = now });
-    addNotification(target, #ContactRequest, null, ?caller);
-  };
-
-  public shared ({ caller }) func acceptContactRequest(from : Principal) : async () {
-    requireAuth(caller);
-    let callerContacts = getUserContacts(caller);
-    let callerEntry = switch (callerContacts.get(from)) {
-      case (?c) {
-        switch (c.status) {
-          case (#Pending) { c };
-          case (_) { Runtime.trap("No pending request from this user") };
-        };
-      };
-      case (null) { Runtime.trap("No pending request from this user") };
-    };
-    let fromContacts = getUserContacts(from);
-    switch (fromContacts.get(caller)) {
-      case (?fc) {
-        if (callerEntry.addedAt > fc.addedAt) {
-          Runtime.trap("Cannot accept your own contact request");
-        };
-      };
-      case (null) { Runtime.trap("No pending request from this user") };
-    };
-    let now = Time.now();
-    callerContacts.add(from, { principal = from; status = #Accepted; addedAt = now });
-    fromContacts.add(caller, { principal = caller; status = #Accepted; addedAt = now });
-    addNotification(from, #ContactAccepted, null, ?caller);
-  };
-
-  public shared ({ caller }) func rejectContactRequest(from : Principal) : async () {
-    requireAuth(caller);
-    let callerContacts = getUserContacts(caller);
-    switch (callerContacts.get(from)) {
-      case (?c) {
-        switch (c.status) {
-          case (#Pending) {};
-          case (_) { Runtime.trap("No pending request from this user") };
-        };
-      };
-      case (null) { Runtime.trap("No pending request from this user") };
-    };
-    callerContacts.remove(from);
-    let fromContacts = getUserContacts(from);
-    fromContacts.remove(caller);
-  };
-
-  public shared ({ caller }) func removeContact(target : Principal) : async () {
-    requireAuth(caller);
-    let callerContacts = getUserContacts(caller);
-    callerContacts.remove(target);
-    let targetContacts = getUserContacts(target);
-    targetContacts.remove(caller);
-  };
-
-  public query ({ caller }) func getContacts() : async [(Contact, PublicProfile)] {
-    requireAuth(caller);
-    let contacts = getUserContacts(caller);
-    let result = List.empty<(Contact, PublicProfile)>();
-    for ((_, contact) in contacts.entries()) {
-      result.add((contact, toPublicProfile(contact.principal)));
-    };
-    result.toArray();
-  };
-
-  public query ({ caller }) func getPendingRequests() : async [(Contact, PublicProfile)] {
-    requireAuth(caller);
-    let contacts = getUserContacts(caller);
-    let result = List.empty<(Contact, PublicProfile)>();
-    for ((_, contact) in contacts.entries()) {
-      switch (contact.status) {
-        case (#Pending) {
-          // Only show requests FROM others (where they initiated)
-          let fromContacts = getUserContacts(contact.principal);
-          switch (fromContacts.get(caller)) {
-            case (?fc) {
-              switch (fc.status) {
-                case (#Pending) {
-                  // Check if caller did NOT initiate (target's addedAt == caller's addedAt means simultaneous)
-                  if (contact.addedAt <= fc.addedAt) {
-                    result.add((contact, toPublicProfile(contact.principal)));
-                  };
-                };
-                case (_) {};
-              };
-            };
-            case (null) {};
-          };
-        };
-        case (_) {};
+        players.add(p.id, { p with points = p.points + bonus });
       };
     };
-    result.toArray();
   };
 
-  public shared ({ caller }) func blockUser(target : Principal) : async () {
-    requireAuth(caller);
-    let blocked = getMap(blockedUsers, caller);
-    blocked.add(target, true);
-    let callerContacts = getUserContacts(caller);
-    callerContacts.remove(target);
-  };
-
-  public shared ({ caller }) func unblockUser(target : Principal) : async () {
-    requireAuth(caller);
-    let blocked = getMap(blockedUsers, caller);
-    blocked.remove(target);
-  };
-
-  public query ({ caller }) func getBlockedUsers() : async [PublicProfile] {
-    requireAuth(caller);
-    switch (blockedUsers.get(caller)) {
-      case (?m) {
-        let result = List.empty<PublicProfile>();
-        for ((p, _) in m.entries()) {
-          result.add(toPublicProfile(p));
-        };
-        result.toArray();
+  func recalcLeaderboard(contestId : Nat) {
+    let entryList = switch (entries.get(contestId)) {
+      case (?lst) { lst };
+      case null   { return };
+    };
+    // Sort entries by points descending and update ranks
+    let arr = entryList.toArray();
+    var rank : Nat = 1;
+    for (e in arr.vals()) {
+      let teamPts = switch (teams.get(e.teamId)) {
+        case (?t) { t.totalPoints };
+        case null  { 0.0 };
       };
-      case (null) { [] };
-    };
-  };
-
-  public shared ({ caller }) func reportUser(target : Principal, reason : Text) : async () {
-    requireAuth(caller);
-    if (reason == "") {
-      Runtime.trap("Report reason cannot be empty");
-    };
-    if (reason.size() > MAX_REPORT_REASON_LENGTH) {
-      Runtime.trap("Report reason exceeds maximum length");
-    };
-    // Prevent duplicate reports from same reporter for same target
-    for (r in reports.values()) {
-      if (r.reporter == caller and r.reported == target) {
-        Runtime.trap("You have already reported this user");
-      };
-    };
-    reports.add({
-      reporter = caller;
-      reported = target;
-      reason;
-      timestamp = Time.now();
-    });
-  };
-
-  public query ({ caller }) func searchUsers(searchText : Text) : async [PublicProfile] {
-    requireAuth(caller);
-    if (searchText.size() < 2) {
-      Runtime.trap("Search query must be at least 2 characters");
-    };
-    let queryLower = searchText.toLower();
-    let result = List.empty<PublicProfile>();
-    var count = 0;
-    for ((p, prof) in userProfiles.entries()) {
-      if (count < 20 and p != caller) {
-        let nameLower = prof.name.toLower();
-        if (nameLower.contains(#text queryLower)) {
-          if (not isBlocked(p, caller)) {
-            result.add(toPublicProfile(p));
-            count += 1;
-          };
-        };
-      };
-    };
-    result.toArray();
-  };
-
-  public query ({ caller }) func getShareId() : async Text {
-    requireAuth(caller);
-    caller.toText();
-  };
-
-  public shared ({ caller }) func addContactByPrincipal(principalText : Text) : async () {
-    requireAuth(caller);
-    let target = P.fromText(principalText);
-    if (target.isAnonymous()) {
-      Runtime.trap("Invalid principal");
-    };
-    if (caller == target) {
-      Runtime.trap("Cannot add yourself as a contact");
-    };
-    if (isBlocked(target, caller)) {
-      Runtime.trap("Cannot send request to this user");
-    };
-    let callerContacts = getUserContacts(caller);
-    switch (callerContacts.get(target)) {
-      case (?c) {
-        switch (c.status) {
-          case (#Accepted) { Runtime.trap("Already a contact") };
-          case (#Pending) { Runtime.trap("Request already sent") };
-          case (#Blocked) { Runtime.trap("User is blocked") };
-        };
-      };
-      case (null) {};
-    };
-    let now = Time.now();
-    // Initiator gets addedAt = now + 1 so getPendingRequests can distinguish sender from receiver
-    callerContacts.add(target, { principal = target; status = #Pending; addedAt = now + 1 });
-    let targetContacts = getUserContacts(target);
-    targetContacts.add(caller, { principal = caller; status = #Pending; addedAt = now });
-    addNotification(target, #ContactRequest, null, ?caller);
-  };
-
-  // Endpoints — Data Export/Import
-
-  type ExportContact = {
-    principalText : Text;
-    status : ContactStatus;
-    addedAt : Int;
-  };
-
-  type ExportData = {
-    profile : { name : Text; bio : Text; email : ?Text; emailVerified : Bool };
-    contacts : [ExportContact];
-    exportedAt : Int;
-  };
-
-  public query ({ caller }) func exportUserData() : async ExportData {
-    requireAuth(caller);
-    let prof = switch (userProfiles.get(caller)) {
-      case (?p) {
-        {
-          name = p.name;
-          bio = p.bio;
-          email = p.email;
-          emailVerified = p.emailVerified;
-        };
-      };
-      case (null) {
-        { name = ""; bio = ""; email = null : ?Text; emailVerified = false };
-      };
-    };
-    let contactsList = getUserContacts(caller);
-    let exportContacts = List.empty<ExportContact>();
-    for ((_, contact) in contactsList.entries()) {
-      exportContacts.add({
-        principalText = contact.principal.toText();
-        status = contact.status;
-        addedAt = contact.addedAt;
+      let updated : ContestEntry = { e with rank = ?rank; points = teamPts };
+      // Replace in list
+      entryList.mapInPlace(func(entry) {
+        if (entry.teamId == e.teamId and entry.owner == e.owner) { updated } else { entry }
       });
+      rank += 1;
     };
-    {
-      profile = prof;
-      contacts = exportContacts.toArray();
-      exportedAt = Time.now();
+    entries.add(contestId, entryList);
+  };
+
+  func updateTeamPoints(matchId : Nat) {
+    for ((_, t) in teams.entries()) {
+      if (t.matchId == matchId) {
+        var pts : Float = 0.0;
+        for (pid in t.playerIds.vals()) {
+          switch (players.get(pid)) {
+            case (?p) {
+              let multiplier : Float = if (pid == t.captainId) { 2.0 } else if (pid == t.viceCaptainId) { 1.5 } else { 1.0 };
+              pts := pts + (p.points * multiplier);
+            };
+            case null {};
+          };
+        };
+        teams.add(t.id, { t with totalPoints = pts });
+      };
     };
   };
 
-  public shared ({ caller }) func importUserData(data : ExportData) : async {
-    contactsRequested : Nat;
-  } {
-    requireAuth(caller);
-    // Restore profile if caller has no profile
-    switch (userProfiles.get(caller)) {
-      case (?_) {};
-      case (null) {
-        if (data.profile.name != "") {
-          let now = Time.now();
-          userProfiles.add(
-            caller,
-            {
-              name = data.profile.name;
-              bio = data.profile.bio;
-              avatar = null;
-              lastSeen = now;
-              email = null;
-              emailVerified = false;
-              twoFactorEnabled = false;
-            },
-          );
-        };
-      };
-    };
-    // Send contact requests for each contact (capped to prevent spam)
-    if (data.contacts.size() > MAX_IMPORT_CONTACTS) {
-      Runtime.trap("Import contains too many contacts (max " # MAX_IMPORT_CONTACTS.toText() # ")");
-    };
-    var requested : Nat = 0;
-    for (ec in data.contacts.vals()) {
-      let target = P.fromText(ec.principalText);
-      if (not target.isAnonymous() and caller != target and not isBlocked(target, caller)) {
-        let callerContacts = getUserContacts(caller);
-        switch (callerContacts.get(target)) {
-          case (?_) {};
-          case (null) {
-            let now = Time.now();
-            callerContacts.add(target, { principal = target; status = #Pending; addedAt = now + 1 });
-            let targetContacts = getUserContacts(target);
-            targetContacts.add(caller, { principal = caller; status = #Pending; addedAt = now });
-            addNotification(target, #ContactRequest, null, ?caller);
-            requested += 1;
-          };
-        };
-      };
-    };
-    { contactsRequested = requested };
-  };
-
-  // Endpoints — Direct Messaging
-
-  public shared ({ caller }) func startDirectChat(target : Principal) : async Nat {
-    requireAuth(caller);
-    if (caller == target) {
-      Runtime.trap("Cannot chat with yourself");
-    };
-    if (isBlocked(target, caller) or isBlocked(caller, target)) {
-      Runtime.trap("Cannot start chat with this user");
-    };
-    // Require accepted contact relationship
-    if (not isAcceptedContact(caller, target)) {
-      Runtime.trap("Cannot start chat — user is not an accepted contact");
-    };
-    // Check if a direct conversation already exists between these two
-    let callerConvs = getUserConversations(caller);
-    for ((convId, _) in callerConvs.entries()) {
-      switch (conversations.get(convId)) {
-        case (?conv) {
-          switch (conv.conversationType) {
-            case (#Direct) {
-              if (isConversationMember(convId, target)) {
-                return convId;
-              };
-            };
-            case (_) {};
-          };
-        };
-        case (null) {};
-      };
-    };
-    // Create new direct conversation
-    let convId = nextConversationId;
-    nextConversationId += 1;
-    conversations.add(
-      convId,
-      {
-        id = convId;
-        conversationType = #Direct;
-        groupInfo = null;
-        createdAt = Time.now();
-      },
-    );
-    let members = getConversationMembers(convId);
-    members.add(caller, true);
-    members.add(target, true);
-    getUserConversations(caller).add(convId, true);
-    getUserConversations(target).add(convId, true);
-    convId;
-  };
-
-  public shared ({ caller }) func sendMessage(
-    conversationId : Nat,
-    content : Text,
-    messageType : MessageType,
-    mediaBlob : ?Storage.ExternalBlob,
-    mediaName : ?Text,
-    mediaSize : ?Nat64,
-    replyToId : ?Nat,
-    mentionedPrincipals : ?[Principal],
-  ) : async Nat {
-    requireAuth(caller);
-    if (not isConversationMember(conversationId, caller)) {
-      Runtime.trap("Not a member of this conversation");
-    };
-    if (content == "" and mediaBlob == null) {
-      Runtime.trap("Message cannot be empty");
-    };
-    if (content.size() > MAX_MESSAGE_LENGTH) {
-      Runtime.trap("Message exceeds maximum length");
-    };
-    switch (mediaName) {
-      case (?name) {
-        if (name.size() > MAX_FILE_NAME_LENGTH) {
-          Runtime.trap("File name exceeds maximum length");
-        };
-      };
-      case (null) {};
-    };
-    switch (mediaSize) {
-      case (?size) {
-        if (size > MAX_FILE_SIZE) {
-          Runtime.trap("File exceeds maximum size of 10 MB");
-        };
-      };
-      case (null) {};
-    };
-    // Limit mentioned principals to prevent abuse
-    switch (mentionedPrincipals) {
-      case (?principals) {
-        if (principals.size() > MAX_MENTIONED_PRINCIPALS) {
-          Runtime.trap("Too many mentioned users (max " # MAX_MENTIONED_PRINCIPALS.toText() # ")");
-        };
-      };
-      case (null) {};
-    };
-    // Check blocked status for direct chats
-    switch (conversations.get(conversationId)) {
-      case (?conv) {
-        switch (conv.conversationType) {
-          case (#Direct) {
-            let members = getConversationMembers(conversationId);
-            for ((p, _) in members.entries()) {
-              if (p != caller) {
-                if (isBlocked(p, caller) or isBlocked(caller, p)) {
-                  Runtime.trap("Cannot send messages in this conversation");
-                };
-              };
-            };
-          };
-          case (_) {};
-        };
-      };
-      case (null) { Runtime.trap("Conversation not found") };
-    };
-    let msgId = nextMessageId;
-    nextMessageId += 1;
-    let msg : Message = {
-      id = msgId;
-      conversationId;
-      sender = caller;
-      content;
-      messageType;
-      mediaBlob;
-      mediaName;
-      mediaSize;
-      replyToId;
-      timestamp = Time.now();
-      deleted = false;
-      reactions = [];
-    };
-    let messages = getConversationMessages(conversationId);
-    messages.add(msg);
-    cleanupExpiredMessages(conversationId);
-    // Update sender's lastSeen
-    switch (userProfiles.get(caller)) {
-      case (?prof) {
-        userProfiles.add(caller, { prof with lastSeen = Time.now() });
-      };
-      case (null) {};
-    };
-    // Notify other members
-    let allMembers = getConversationMembers(conversationId);
-    for ((p, _) in allMembers.entries()) {
-      if (p != caller) {
-        addNotification(p, #NewMessage, ?conversationId, ?caller);
-      };
-    };
-    // Handle @mentions — use explicit principals if provided (E2EE), otherwise parse from content
-    switch (mentionedPrincipals) {
-      case (?principals) {
-        for (mp in principals.vals()) {
-          if (mp != caller and isConversationMember(conversationId, mp)) {
-            addNotification(mp, #Mention, ?conversationId, ?caller);
-          };
-        };
-      };
-      case (null) {
-        // Parse @mentions by iterating characters
-        let mentionedNames = List.empty<Text>();
-        var i = 0;
-        let contentSize = content.size();
-        let contentChars = List.empty<Char>();
-        for (c in content.chars()) {
-          contentChars.add(c);
-        };
-        let charArray = contentChars.toArray();
-        while (i < contentSize) {
-          if (charArray[i] == '@') {
-            i += 1;
-            var nameChars = List.empty<Char>();
-            while (i < contentSize and charArray[i] != ' ' and charArray[i] != '\n' and charArray[i] != '@') {
-              nameChars.add(charArray[i]);
-              i += 1;
-            };
-            if (nameChars.size() > 0) {
-              var name = "";
-              for (nc in nameChars.values()) {
-                name #= Text.fromChar(nc);
-              };
-              mentionedNames.add(name.toLower());
-            };
-          } else {
-            i += 1;
-          };
-        };
-        for ((p, _) in allMembers.entries()) {
-          if (p != caller) {
-            switch (userProfiles.get(p)) {
-              case (?prof) {
-                let nameLower = prof.name.toLower();
-                for (mentioned in mentionedNames.values()) {
-                  if (nameLower.contains(#text mentioned)) {
-                    addNotification(p, #Mention, ?conversationId, ?caller);
-                  };
-                };
-              };
-              case (null) {};
-            };
-          };
-        };
-      };
-    };
-    msgId;
-  };
-
-  public query ({ caller }) func getMessages(conversationId : Nat, beforeTimestamp : ?Int, limit : Nat) : async [Message] {
-    requireAuth(caller);
-    if (not isConversationMember(conversationId, caller)) {
-      Runtime.trap("Not a member of this conversation");
-    };
-    let messages = getConversationMessages(conversationId);
-    let effectiveLimit = if (limit == 0 or limit > 100) { 50 } else { limit };
+  system func heartbeat() : async () {
     let now = Time.now();
-    let timerDuration = switch (conversationTimers.get(conversationId)) {
-      case (?t) { timerToNanos(t) };
-      case (null) { null };
-    };
-    // Messages are in chronological order; collect all matching, then take last N
-    let all = List.empty<Message>();
-    for (msg in messages.values()) {
-      if (msg.deleted) {} else {
-        // Filter out expired disappearing messages
-        let expired = switch (timerDuration) {
-          case (?dur) { msg.timestamp + dur < now };
-          case (null) { false };
+    // Poll every 30 seconds (30_000_000_000 ns)
+    if (now - lastHeartbeat < 30_000_000_000) { return };
+    lastHeartbeat := now;
+
+    for ((_, m) in matches.entries()) {
+      if (m.status == #Live) {
+        // Build mock API URL (CricAPI pattern)
+        let url = "https://api.cricapi.com/v1/match?apikey=mock&id=" # debug_show(m.id);
+        try {
+          let _response = await OutCall.httpGetRequest(url, [], transform);
+          // In a real integration, parse _response JSON on the frontend
+          // Here we apply mock point increments for demo purposes
+          updatePlayerPointsFromScore(m.id, m.sport);
+          updateTeamPoints(m.id);
+          matches.add(m.id, { m with lastUpdated = now });
+        } catch (_err) {
+          // Ignore network errors — just update timestamp
+          updatePlayerPointsFromScore(m.id, m.sport);
+          updateTeamPoints(m.id);
+          matches.add(m.id, { m with lastUpdated = now });
         };
-        if (expired) {} else {
-          switch (beforeTimestamp) {
-            case (?ts) {
-              if (msg.timestamp < ts) {
-                all.add(msg);
-              };
-            };
-            case (null) {
-              all.add(msg);
-            };
+        // Recalculate leaderboards for contests of this match
+        for ((cid, c) in contests.entries()) {
+          if (c.matchId == m.id) {
+            recalcLeaderboard(cid);
           };
         };
       };
     };
-    // Take last `effectiveLimit` messages
-    let arr = all.toArray();
-    let result = List.empty<Message>();
-    for (i in arr.keys()) {
-      if (i + effectiveLimit >= arr.size()) {
-        result.add(arr[i]);
-      };
-    };
-    result.toArray();
   };
 
-  public query ({ caller }) func getConversations() : async [ConversationPreview] {
-    requireAuth(caller);
-    let callerConvs = getUserConversations(caller);
-    let result = List.empty<ConversationPreview>();
-    for ((convId, _) in callerConvs.entries()) {
-      switch (conversations.get(convId)) {
-        case (?conv) {
-          let messages = getConversationMessages(convId);
-          var lastMsgTime : ?Int = null;
-          // Find last non-deleted message timestamp
-          for (msg in messages.values()) {
-            if (not msg.deleted) {
-              lastMsgTime := ?msg.timestamp;
-            };
-          };
-          // Count unread
-          let cursors = getUserReadCursors(caller);
-          let lastReadId = switch (cursors.get(convId)) {
-            case (?id) { id };
-            case (null) { 0 };
-          };
-          var unread = 0;
-          for (msg in messages.values()) {
-            if (msg.id > lastReadId and msg.sender != caller and not msg.deleted) {
-              unread += 1;
-            };
-          };
-          // Get member profiles
-          let memberProfiles = List.empty<PublicProfile>();
-          let members = getConversationMembers(convId);
-          for ((p, _) in members.entries()) {
-            if (p != caller) {
-              memberProfiles.add(toPublicProfile(p));
-            };
-          };
-          result.add({
-            id = conv.id;
-            conversationType = conv.conversationType;
-            groupInfo = conv.groupInfo;
-            lastMessageTime = lastMsgTime;
-            unreadCount = unread;
-            members = memberProfiles.toArray();
-          });
-        };
-        case (null) {};
-      };
-    };
-    result.toArray();
+  // ── Stripe payment endpoints ──────────────────────────────────────────
+
+  public shared ({ caller }) func setStripeConfiguration(config : Stripe.StripeConfiguration) : async () {
+    ignore caller;
+    stripeConfig := ?config;
   };
 
-  public shared ({ caller }) func markAsRead(conversationId : Nat, upToMessageId : Nat) : async () {
-    requireAuth(caller);
-    if (not isConversationMember(conversationId, caller)) {
-      Runtime.trap("Not a member of this conversation");
-    };
-    let cursors = getUserReadCursors(caller);
-    cursors.add(conversationId, upToMessageId);
+  public query func isStripeConfigured() : async Bool {
+    stripeConfig != null;
   };
 
-  public shared ({ caller }) func deleteMessage(conversationId : Nat, messageId : Nat) : async () {
-    requireAuth(caller);
-    if (not isConversationMember(conversationId, caller)) {
-      Runtime.trap("Not a member of this conversation");
-    };
-    let messages = getConversationMessages(conversationId);
-    let updated = List.empty<Message>();
-    var found = false;
-    for (msg in messages.values()) {
-      if (msg.id == messageId) {
-        if (msg.sender != caller) {
-          Runtime.trap("Can only delete your own messages");
-        };
-        updated.add({
-          msg with content = "Message deleted";
-          deleted = true;
-          mediaBlob = null;
-          mediaName = null;
-          mediaSize = null;
-        });
-        found := true;
-      } else {
-        updated.add(msg);
-      };
-    };
-    if (not found) {
-      Runtime.trap("Message not found");
-    };
-    conversationMessages.add(conversationId, updated);
-  };
-
-  public shared ({ caller }) func addReaction(conversationId : Nat, messageId : Nat, emoji : Text) : async () {
-    requireAuth(caller);
-    if (not isConversationMember(conversationId, caller)) {
-      Runtime.trap("Not a member of this conversation");
-    };
-    let messages = getConversationMessages(conversationId);
-    let updated = List.empty<Message>();
-    var found = false;
-    for (msg in messages.values()) {
-      if (msg.id == messageId) {
-        found := true;
-        // Remove existing reaction from this user, then add new one
-        let newReactions = List.empty<(Principal, Text)>();
-        for (r in msg.reactions.vals()) {
-          if (r.0 != caller) {
-            newReactions.add(r);
-          };
-        };
-        newReactions.add((caller, emoji));
-        updated.add({ msg with reactions = newReactions.toArray() });
-      } else {
-        updated.add(msg);
-      };
-    };
-    if (not found) {
-      Runtime.trap("Message not found");
-    };
-    conversationMessages.add(conversationId, updated);
-  };
-
-  public shared ({ caller }) func removeReaction(conversationId : Nat, messageId : Nat, emoji : Text) : async () {
-    requireAuth(caller);
-    if (not isConversationMember(conversationId, caller)) {
-      Runtime.trap("Not a member of this conversation");
-    };
-    let messages = getConversationMessages(conversationId);
-    let updated = List.empty<Message>();
-    var found = false;
-    for (msg in messages.values()) {
-      if (msg.id == messageId) {
-        found := true;
-        let newReactions = List.empty<(Principal, Text)>();
-        for (r in msg.reactions.vals()) {
-          if (not (r.0 == caller and r.1 == emoji)) {
-            newReactions.add(r);
-          };
-        };
-        updated.add({ msg with reactions = newReactions.toArray() });
-      } else {
-        updated.add(msg);
-      };
-    };
-    if (not found) {
-      Runtime.trap("Message not found");
-    };
-    conversationMessages.add(conversationId, updated);
-  };
-
-  // Endpoints — Group Chats
-
-  public shared ({ caller }) func createGroup(name : Text, memberPrincipals : [Principal], avatar : ?Storage.ExternalBlob) : async Nat {
-    requireAuth(caller);
-    if (name == "") {
-      Runtime.trap("Group name cannot be empty");
-    };
-    if (name.size() > MAX_GROUP_NAME_LENGTH) {
-      Runtime.trap("Group name must be 100 characters or fewer");
-    };
-    if (memberPrincipals.size() + 1 > MAX_GROUP_MEMBERS) {
-      Runtime.trap("Group cannot exceed " # MAX_GROUP_MEMBERS.toText() # " members");
-    };
-    let convId = nextConversationId;
-    nextConversationId += 1;
-    conversations.add(
-      convId,
-      {
-        id = convId;
-        conversationType = #Group;
-        groupInfo = ?{
-          name;
-          avatar;
-          admin = caller;
-        };
-        createdAt = Time.now();
-      },
-    );
-    let members = getConversationMembers(convId);
-    members.add(caller, true);
-    getUserConversations(caller).add(convId, true);
-    for (p in memberPrincipals.vals()) {
-      if (p != caller and not p.isAnonymous()) {
-        members.add(p, true);
-        getUserConversations(p).add(convId, true);
-      };
-    };
-    convId;
-  };
-
-  public shared ({ caller }) func updateGroup(conversationId : Nat, name : ?Text, avatar : ?Storage.ExternalBlob) : async () {
-    requireAuth(caller);
-    switch (conversations.get(conversationId)) {
-      case (?conv) {
-        switch (conv.groupInfo) {
-          case (?gi) {
-            if (gi.admin != caller) {
-              Runtime.trap("Only group admin can update the group");
-            };
-            let newName = switch (name) {
-              case (?n) {
-                if (n == "") { Runtime.trap("Group name cannot be empty") };
-                if (n.size() > MAX_GROUP_NAME_LENGTH) {
-                  Runtime.trap("Group name must be 100 characters or fewer");
-                };
-                n;
-              };
-              case (null) { gi.name };
-            };
-            conversations.add(
-              conversationId,
-              {
-                conv with groupInfo = ?{
-                  gi with name = newName;
-                  avatar;
-                };
-              },
-            );
-          };
-          case (null) { Runtime.trap("Not a group conversation") };
-        };
-      };
-      case (null) { Runtime.trap("Conversation not found") };
+  func getStripeConfig() : Stripe.StripeConfiguration {
+    switch (stripeConfig) {
+      case (?cfg) { cfg };
+      case null   { Runtime.trap("Stripe not configured") };
     };
   };
 
-  public shared ({ caller }) func addGroupMember(conversationId : Nat, member : Principal) : async () {
+  public shared ({ caller }) func createCheckoutSession(amount : Nat) : async Text {
     requireAuth(caller);
-    switch (conversations.get(conversationId)) {
-      case (?conv) {
-        switch (conv.groupInfo) {
-          case (?gi) {
-            if (gi.admin != caller) {
-              Runtime.trap("Only group admin can add members");
-            };
-            let members = getConversationMembers(conversationId);
-            // Enforce group member limit
-            var memberCount : Nat = 0;
-            for (_ in members.entries()) {
-              memberCount += 1;
-            };
-            if (memberCount >= MAX_GROUP_MEMBERS) {
-              Runtime.trap("Group cannot exceed " # MAX_GROUP_MEMBERS.toText() # " members");
-            };
-            members.add(member, true);
-            getUserConversations(member).add(conversationId, true);
-            addNotification(member, #GroupInvite, ?conversationId, ?caller);
-          };
-          case (null) { Runtime.trap("Not a group conversation") };
-        };
-      };
-      case (null) { Runtime.trap("Conversation not found") };
-    };
-  };
-
-  public shared ({ caller }) func removeGroupMember(conversationId : Nat, member : Principal) : async () {
-    requireAuth(caller);
-    switch (conversations.get(conversationId)) {
-      case (?conv) {
-        switch (conv.groupInfo) {
-          case (?gi) {
-            if (gi.admin != caller) {
-              Runtime.trap("Only group admin can remove members");
-            };
-            if (member == caller) {
-              Runtime.trap("Admin cannot remove themselves; use leaveGroup");
-            };
-            let members = getConversationMembers(conversationId);
-            members.remove(member);
-            getUserConversations(member).remove(conversationId);
-          };
-          case (null) { Runtime.trap("Not a group conversation") };
-        };
-      };
-      case (null) { Runtime.trap("Conversation not found") };
-    };
-  };
-
-  public shared ({ caller }) func leaveGroup(conversationId : Nat) : async () {
-    requireAuth(caller);
-    if (not isConversationMember(conversationId, caller)) {
-      Runtime.trap("Not a member of this group");
-    };
-    switch (conversations.get(conversationId)) {
-      case (?conv) {
-        switch (conv.groupInfo) {
-          case (?gi) {
-            let members = getConversationMembers(conversationId);
-            members.remove(caller);
-            getUserConversations(caller).remove(conversationId);
-            // If admin leaves, assign next member as admin
-            if (gi.admin == caller) {
-              var newAdmin : ?Principal = null;
-              for ((p, _) in members.entries()) {
-                switch (newAdmin) {
-                  case (null) { newAdmin := ?p };
-                  case (?_) {};
-                };
-              };
-              switch (newAdmin) {
-                case (?na) {
-                  conversations.add(
-                    conversationId,
-                    {
-                      conv with groupInfo = ?{ gi with admin = na };
-                    },
-                  );
-                };
-                case (null) {
-                  // No members left — clean up
-                  conversations.remove(conversationId);
-                };
-              };
-            };
-          };
-          case (null) { Runtime.trap("Not a group conversation") };
-        };
-      };
-      case (null) { Runtime.trap("Conversation not found") };
-    };
-  };
-
-  public query ({ caller }) func getGroupInfo(conversationId : Nat) : async {
-    name : Text;
-    avatar : ?Storage.ExternalBlob;
-    admin : Principal;
-    members : [PublicProfile];
-  } {
-    requireAuth(caller);
-    if (not isConversationMember(conversationId, caller)) {
-      Runtime.trap("Not a member of this group");
-    };
-    switch (conversations.get(conversationId)) {
-      case (?conv) {
-        switch (conv.groupInfo) {
-          case (?gi) {
-            let memberProfiles = List.empty<PublicProfile>();
-            let members = getConversationMembers(conversationId);
-            for ((p, _) in members.entries()) {
-              memberProfiles.add(toPublicProfile(p));
-            };
-            {
-              name = gi.name;
-              avatar = gi.avatar;
-              admin = gi.admin;
-              members = memberProfiles.toArray();
-            };
-          };
-          case (null) { Runtime.trap("Not a group conversation") };
-        };
-      };
-      case (null) { Runtime.trap("Conversation not found") };
-    };
-  };
-
-  // Endpoints — Status Updates
-
-  public shared ({ caller }) func postStatus(content : Text, mediaBlob : ?Storage.ExternalBlob) : async Nat {
-    requireAuth(caller);
-    if (content == "" and mediaBlob == null) {
-      Runtime.trap("Status cannot be empty");
-    };
-    if (content.size() > MAX_STATUS_LENGTH) {
-      Runtime.trap("Status exceeds maximum length");
-    };
-    let statusId = nextStatusId;
-    nextStatusId += 1;
-    let now = Time.now();
-    let status : StatusUpdate = {
-      id = statusId;
-      author = caller;
-      content;
-      mediaBlob;
-      postedAt = now;
-      expiresAt = now + 86_400_000_000_000; // 24 hours in nanoseconds
-      reactions = [];
-    };
-    let statuses = switch (userStatuses.get(caller)) {
-      case (?l) { l };
-      case (null) {
-        let l = List.empty<StatusUpdate>();
-        userStatuses.add(caller, l);
-        l;
-      };
-    };
-    statuses.add(status);
-    statusId;
-  };
-
-  public query ({ caller }) func getContactStatuses() : async [StatusUpdate] {
-    requireAuth(caller);
-    let now = Time.now();
-    let result = List.empty<StatusUpdate>();
-    let contacts = getUserContacts(caller);
-    for ((p, contact) in contacts.entries()) {
-      switch (contact.status) {
-        case (#Accepted) {
-          switch (userStatuses.get(p)) {
-            case (?statuses) {
-              for (s in statuses.values()) {
-                if (s.expiresAt > now) {
-                  result.add(s);
-                };
-              };
-            };
-            case (null) {};
-          };
-        };
-        case (_) {};
-      };
-    };
-    // Sort by postedAt descending
-    result.sortInPlace(func(a, b) { Int.compare(b.postedAt, a.postedAt) });
-    result.toArray();
-  };
-
-  public query ({ caller }) func getMyStatuses() : async [StatusUpdate] {
-    requireAuth(caller);
-    let now = Time.now();
-    switch (userStatuses.get(caller)) {
-      case (?statuses) {
-        let result = List.empty<StatusUpdate>();
-        for (s in statuses.values()) {
-          if (s.expiresAt > now) {
-            result.add(s);
-          };
-        };
-        result.toArray();
-      };
-      case (null) { [] };
-    };
-  };
-
-  public shared ({ caller }) func deleteStatus(statusId : Nat) : async () {
-    requireAuth(caller);
-    switch (userStatuses.get(caller)) {
-      case (?statuses) {
-        let updated = List.empty<StatusUpdate>();
-        var found = false;
-        for (s in statuses.values()) {
-          if (s.id == statusId) {
-            found := true;
-          } else {
-            updated.add(s);
-          };
-        };
-        if (not found) {
-          Runtime.trap("Status not found");
-        };
-        userStatuses.add(caller, updated);
-      };
-      case (null) { Runtime.trap("Status not found") };
-    };
-  };
-
-  public shared ({ caller }) func reactToStatus(statusId : Nat, emoji : Text) : async () {
-    requireAuth(caller);
-    // Find the status across all users
-    for ((author, statuses) in userStatuses.entries()) {
-      let updated = List.empty<StatusUpdate>();
-      var modified = false;
-      for (s in statuses.values()) {
-        if (s.id == statusId) {
-          // Verify the status author is an accepted contact
-          if (author != caller and not isAcceptedContact(caller, author)) {
-            Runtime.trap("Cannot react to this status");
-          };
-          modified := true;
-          let newReactions = List.empty<(Principal, Text)>();
-          for (r in s.reactions.vals()) {
-            if (r.0 != caller) {
-              newReactions.add(r);
-            };
-          };
-          newReactions.add((caller, emoji));
-          updated.add({ s with reactions = newReactions.toArray() });
-        } else {
-          updated.add(s);
-        };
-      };
-      if (modified) {
-        userStatuses.add(author, updated);
-        addNotification(author, #StatusReaction, null, ?caller);
-        return;
-      };
-    };
-    Runtime.trap("Status not found");
-  };
-
-  // Endpoints — Notifications
-
-  public query ({ caller }) func getNotifications(limit : Nat) : async [Notification] {
-    requireAuth(caller);
-    let effectiveLimit = if (limit == 0 or limit > 100) { 50 } else { limit };
-    switch (userNotifications.get(caller)) {
-      case (?notifs) {
-        let arr = notifs.toArray();
-        // Return newest first, limited
-        let result = List.empty<Notification>();
-        var count = 0;
-        var i = arr.size();
-        while (i > 0 and count < effectiveLimit) {
-          i -= 1;
-          result.add(arr[i]);
-          count += 1;
-        };
-        result.toArray();
-      };
-      case (null) { [] };
-    };
-  };
-
-  public shared ({ caller }) func markNotificationsRead(upToId : Nat) : async () {
-    requireAuth(caller);
-    switch (userNotifications.get(caller)) {
-      case (?notifs) {
-        let updated = List.empty<Notification>();
-        for (n in notifs.values()) {
-          if (n.id <= upToId and not n.read) {
-            updated.add({ n with read = true });
-          } else {
-            updated.add(n);
-          };
-        };
-        userNotifications.add(caller, updated);
-      };
-      case (null) {};
-    };
-  };
-
-  public shared ({ caller }) func toggleNotificationRead(notificationId : Nat) : async () {
-    requireAuth(caller);
-    switch (userNotifications.get(caller)) {
-      case (?notifs) {
-        let updated = List.empty<Notification>();
-        for (n in notifs.values()) {
-          if (n.id == notificationId) {
-            updated.add({ n with read = not n.read });
-          } else {
-            updated.add(n);
-          };
-        };
-        userNotifications.add(caller, updated);
-      };
-      case (null) {};
-    };
-  };
-
-  public query ({ caller }) func getUnreadCount() : async Nat {
-    requireAuth(caller);
-    switch (userNotifications.get(caller)) {
-      case (?notifs) {
-        var count = 0;
-        for (n in notifs.values()) {
-          if (not n.read) {
-            count += 1;
-          };
-        };
-        count;
-      };
-      case (null) { 0 };
-    };
-  };
-
-  // Endpoints — Disappearing Messages
-
-  public shared ({ caller }) func setDisappearingTimer(conversationId : Nat, timer : DisappearingTimer) : async () {
-    requireAuth(caller);
-    if (not isConversationMember(conversationId, caller)) {
-      Runtime.trap("Not a member of this conversation");
-    };
-    // For group conversations, only admin can change the timer
-    switch (conversations.get(conversationId)) {
-      case (?conv) {
-        switch (conv.groupInfo) {
-          case (?gi) {
-            if (gi.admin != caller) {
-              Runtime.trap("Only group admin can change the disappearing timer");
-            };
-          };
-          case (null) {}; // Direct chat — either party can set it
-        };
-      };
-      case (null) { Runtime.trap("Conversation not found") };
-    };
-    conversationTimers.add(conversationId, timer);
-    cleanupExpiredMessages(conversationId);
-  };
-
-  public query ({ caller }) func getDisappearingTimer(conversationId : Nat) : async DisappearingTimer {
-    requireAuth(caller);
-    if (not isConversationMember(conversationId, caller)) {
-      Runtime.trap("Not a member of this conversation");
-    };
-    switch (conversationTimers.get(conversationId)) {
-      case (?t) { t };
-      case (null) { #Off };
-    };
-  };
-
-  // Endpoints — Typing Indicators
-
-  public shared ({ caller }) func setTyping(conversationId : Nat) : async () {
-    requireAuth(caller);
-    if (not isConversationMember(conversationId, caller)) {
-      Runtime.trap("Not a member of this conversation");
-    };
-    let convTyping = switch (typingIndicators.get(conversationId)) {
-      case (?m) { m };
-      case (null) {
-        let m = Map.empty<Principal, Int>();
-        typingIndicators.add(conversationId, m);
-        m;
-      };
-    };
-    convTyping.add(caller, Time.now());
-  };
-
-  public query ({ caller }) func getTypingUsers(conversationId : Nat) : async [Principal] {
-    requireAuth(caller);
-    if (not isConversationMember(conversationId, caller)) {
-      Runtime.trap("Not a member of this conversation");
-    };
-    let now = Time.now();
-    let threshold = 5_000_000_000; // 5 seconds
-    switch (typingIndicators.get(conversationId)) {
-      case (?m) {
-        let result = List.empty<Principal>();
-        for ((p, ts) in m.entries()) {
-          if (p != caller and now - ts < threshold) {
-            result.add(p);
-          };
-        };
-        result.toArray();
-      };
-      case (null) { [] };
-    };
-  };
-
-  // Endpoints — vetKD
-
-  public shared ({ caller }) func getVetKdPublicKey() : async Blob {
-    requireAuth(caller);
-    let result = await (with cycles = 26_153_846_153) vetKdApi.vetkd_public_key({
-      canister_id = null;
-      context = "email_config".encodeUtf8();
-      key_id = { curve = #bls12_381_g2; name = VETKD_KEY_NAME };
-    });
-    result.public_key;
-  };
-
-  public shared ({ caller }) func getVetKey(transportPublicKey : Blob) : async Blob {
-    requireAuth(caller);
-    let result = await (with cycles = 26_153_846_153) vetKdApi.vetkd_derive_key({
-      context = "email_config".encodeUtf8();
-      input = caller.toBlob();
-      key_id = { curve = #bls12_381_g2; name = VETKD_KEY_NAME };
-      transport_public_key = transportPublicKey;
-    });
-    result.encrypted_key;
-  };
-
-  public shared ({ caller }) func setEncryptedEmailConfig(encryptedApiKey : Blob, senderEmail : Text) : async () {
-    requireAuth(caller);
-    if (encryptedApiKey.size() == 0) {
-      Runtime.trap("Encrypted API key cannot be empty");
-    };
-    if (senderEmail == "") {
-      Runtime.trap("Sender email cannot be empty");
-    };
-    if (senderEmail.size() > 320) {
-      Runtime.trap("Sender email is too long");
-    };
-    userEncryptedEmailConfigs.add(caller, { encryptedApiKey; senderEmail });
-  };
-
-  public query ({ caller }) func getEncryptedEmailConfig() : async ?EncryptedEmailConfig {
-    requireAuth(caller);
-    userEncryptedEmailConfigs.get(caller);
-  };
-
-  // Endpoints — Email 2FA
-
-  public shared ({ caller }) func requestEmailVerification(
-    email : Text,
-    apiKey : Text,
-    senderEmail : Text,
-  ) : async () {
-    requireAuth(caller);
-    if (email == "") {
-      Runtime.trap("Email cannot be empty");
-    };
-    if (apiKey == "") {
-      Runtime.trap("API key cannot be empty");
-    };
-    if (senderEmail == "") {
-      Runtime.trap("Sender email cannot be empty");
-    };
-    let otp = await generateOtp();
-    let expiry = Time.now() + 600_000_000_000; // 10 minutes
-    pendingOtps.add(caller, { code = otp; email; expiry; attempts = 0 });
-    let subject = "SecureChat Verification Code";
-    let html = "<div style='font-family:sans-serif;max-width:400px;margin:0 auto;padding:20px'><h2 style='color:#0f766e'>SecureChat</h2><p>Your verification code is:</p><div style='font-size:32px;font-weight:bold;letter-spacing:8px;text-align:center;padding:20px;background:#f0fdfa;border-radius:8px;color:#0f766e'>" # otp # "</div><p style='color:#666;font-size:14px;margin-top:16px'>This code expires in 10 minutes.</p></div>";
-    let payload = buildEmailPayload(senderEmail, "SecureChat", email, subject, html);
-    let headers : [OutCall.HttpHeader] = [
-      { name = "Content-Type"; value = "application/json" },
-      { name = "Authorization"; value = "Bearer " # apiKey },
-    ];
-    ignore await OutCall.httpPostRequest(
-      "https://api.resend.com/emails",
-      headers,
-      payload,
+    let items : [Stripe.ShoppingItem] = [{
+      currency           = "inr";
+      productName        = "Wallet Top-up";
+      productDescription = "Add funds to your fantasy wallet";
+      priceInCents       = amount * 100;
+      quantity           = 1;
+    }];
+    let baseUrl = "https://app.example.com";
+    await Stripe.createCheckoutSession(
+      getStripeConfig(),
+      caller,
+      items,
+      baseUrl # "/payment-success",
+      baseUrl # "/payment-failure",
       transform,
     );
   };
 
-  public shared ({ caller }) func verifyEmailOtp(code : Text) : async () {
-    requireAuth(caller);
-    switch (pendingOtps.get(caller)) {
-      case (?otp) {
-        if (Time.now() > otp.expiry) {
-          pendingOtps.remove(caller);
-          Runtime.trap("Verification code has expired");
+  public shared func confirmPayment(sessionId : Text) : async Bool {
+    let status = await Stripe.getSessionStatus(getStripeConfig(), sessionId, transform);
+    switch status {
+      case (#completed { response = _; userPrincipal = ?principalText }) {
+        // Credit wallet for the confirmed payment
+        // Use a fixed demo amount of 500 when we cannot parse the session amount
+        let p = Principal.fromText(principalText);
+        let current = switch (wallets.get(p)) { case (?b) { b }; case null { 0 } };
+        wallets.add(p, current + 500);
+        // Record deposit transaction
+        let txId = state.nextTxId;
+        state.nextTxId += 1;
+        let tx : Transaction = {
+          id        = txId;
+          owner     = p;
+          kind      = #Deposit;
+          amount    = 500;
+          note      = "Stripe payment " # sessionId;
+          timestamp = Time.now();
         };
-        if (otp.code != code) {
-          let newAttempts = otp.attempts + 1;
-          if (newAttempts >= MAX_OTP_ATTEMPTS) {
-            pendingOtps.remove(caller);
-            Runtime.trap("Too many failed attempts — request a new code");
-          };
-          pendingOtps.add(caller, { otp with attempts = newAttempts });
-          Runtime.trap("Invalid verification code");
+        let txList = switch (transactions.get(p)) {
+          case (?lst) { lst };
+          case null    { List.empty<Transaction>() };
         };
-        // Update profile with verified email
-        switch (userProfiles.get(caller)) {
-          case (?prof) {
-            userProfiles.add(
-              caller,
-              {
-                prof with email = ?otp.email;
-                emailVerified = true;
-                twoFactorEnabled = prof.twoFactorEnabled;
-              },
-            );
-          };
-          case (null) {
-            Runtime.trap("Profile not found — set up profile first");
-          };
-        };
-        pendingOtps.remove(caller);
-      };
-      case (null) {
-        Runtime.trap("No pending verification — request a code first");
-      };
-    };
-  };
-
-  public query ({ caller }) func getEmailVerificationStatus() : async {
-    email : ?Text;
-    verified : Bool;
-  } {
-    requireAuth(caller);
-    switch (userProfiles.get(caller)) {
-      case (?prof) {
-        { email = prof.email; verified = prof.emailVerified };
-      };
-      case (null) {
-        { email = null; verified = false };
-      };
-    };
-  };
-
-  // Endpoints — Two-Factor Authentication
-
-  public query ({ caller }) func getTwoFactorStatus() : async {
-    enabled : Bool;
-    emailVerified : Bool;
-    email : ?Text;
-  } {
-    requireAuth(caller);
-    switch (userProfiles.get(caller)) {
-      case (?prof) {
-        {
-          enabled = prof.twoFactorEnabled;
-          emailVerified = prof.emailVerified;
-          email = prof.email;
-        };
-      };
-      case (null) {
-        { enabled = false; emailVerified = false; email = null };
-      };
-    };
-  };
-
-  public shared ({ caller }) func setTwoFactorEnabled(enabled : Bool) : async () {
-    requireAuth(caller);
-    switch (userProfiles.get(caller)) {
-      case (?prof) {
-        if (enabled and not prof.emailVerified) {
-          Runtime.trap("Cannot enable 2FA without a verified email");
-        };
-        userProfiles.add(caller, { prof with twoFactorEnabled = enabled });
-      };
-      case (null) {
-        Runtime.trap("Profile not found");
-      };
-    };
-  };
-
-  public shared ({ caller }) func requestLoginOtp(
-    apiKey : Text,
-    senderEmail : Text,
-  ) : async () {
-    requireAuth(caller);
-    let prof = switch (userProfiles.get(caller)) {
-      case (?p) { p };
-      case (null) { Runtime.trap("Profile not found") };
-    };
-    if (not prof.twoFactorEnabled) {
-      Runtime.trap("Two-factor authentication is not enabled");
-    };
-    let email = switch (prof.email) {
-      case (?e) { e };
-      case (null) { Runtime.trap("No verified email on file") };
-    };
-    if (apiKey == "") {
-      Runtime.trap("API key cannot be empty");
-    };
-    if (senderEmail == "") {
-      Runtime.trap("Sender email cannot be empty");
-    };
-    let otp = await generateOtp();
-    let expiry = Time.now() + 600_000_000_000;
-    pendingOtps.add(caller, { code = otp; email; expiry; attempts = 0 });
-    let subject = "SecureChat Login Code";
-    let html = "<div style='font-family:sans-serif;max-width:400px;margin:0 auto;padding:20px'><h2 style='color:#0f766e'>SecureChat</h2><p>Your login verification code is:</p><div style='font-size:32px;font-weight:bold;letter-spacing:8px;text-align:center;padding:20px;background:#f0fdfa;border-radius:8px;color:#0f766e'>" # otp # "</div><p style='color:#666;font-size:14px;margin-top:16px'>This code expires in 10 minutes. If you did not request this, please ignore.</p></div>";
-    let payload = buildEmailPayload(senderEmail, "SecureChat", email, subject, html);
-    let headers : [OutCall.HttpHeader] = [
-      { name = "Content-Type"; value = "application/json" },
-      { name = "Authorization"; value = "Bearer " # apiKey },
-    ];
-    ignore await OutCall.httpPostRequest(
-      "https://api.resend.com/emails",
-      headers,
-      payload,
-      transform,
-    );
-  };
-
-  public shared ({ caller }) func verifyLoginOtp(code : Text) : async Bool {
-    requireAuth(caller);
-    switch (pendingOtps.get(caller)) {
-      case (?otp) {
-        if (Time.now() > otp.expiry) {
-          pendingOtps.remove(caller);
-          Runtime.trap("Verification code has expired");
-        };
-        if (otp.code != code) {
-          let newAttempts = otp.attempts + 1;
-          if (newAttempts >= MAX_OTP_ATTEMPTS) {
-            pendingOtps.remove(caller);
-            Runtime.trap("Too many failed attempts — request a new code");
-          };
-          pendingOtps.add(caller, { otp with attempts = newAttempts });
-          Runtime.trap("Invalid verification code");
-        };
-        pendingOtps.remove(caller);
+        txList.add(tx);
+        transactions.add(p, txList);
         true;
       };
-      case (null) {
-        Runtime.trap("No pending verification — request a code first");
-      };
+      case (#completed { response = _; userPrincipal = null }) { false };
+      case (#failed _) { false };
     };
   };
 
-  // Endpoints — File Storage (from template)
-
-  public shared ({ caller }) func uploadFile(
-    name : Text,
-    size : Nat64,
-    fileType : Text,
-    blob : Storage.ExternalBlob,
-  ) : async FileMetadata {
-    requireAuth(caller);
-    if (name == "") {
-      Runtime.trap("File name cannot be empty");
-    };
-    if (name.size() > MAX_FILE_NAME_LENGTH) {
-      Runtime.trap("File name exceeds maximum length");
-    };
-    if (size > MAX_FILE_SIZE) {
-      Runtime.trap("File exceeds maximum size of 10 MB");
-    };
-    let files = getUserFiles(caller);
-    let fileId = genFileId(caller);
-    let metadata : FileMetadata = {
-      id = fileId;
-      name;
-      size;
-      uploadDate = Time.now();
-      fileType;
-      blob;
-    };
-    files.add(fileId, metadata);
-    metadata;
+  public shared func getStripeSessionStatus(sessionId : Text) : async Stripe.StripeSessionStatus {
+    await Stripe.getSessionStatus(getStripeConfig(), sessionId, transform);
   };
 
-  public query ({ caller }) func getAllFiles() : async [FileMetadata] {
+  public shared ({ caller }) func withdrawRequest(amount : Nat) : async Bool {
     requireAuth(caller);
-    getUserFiles(caller).values().toArray();
-  };
-
-  public query ({ caller }) func getFile(id : FileId) : async FileMetadata {
-    requireAuth(caller);
-    let files = getUserFiles(caller);
-    switch (files.get(id)) {
-      case (?file) { file };
-      case (null) { Runtime.trap("File not found") };
+    let balance = switch (wallets.get(caller)) {
+      case (?b) { b };
+      case null  { 0 };
     };
-  };
-
-  public shared ({ caller }) func deleteFile(id : FileId) : async () {
-    requireAuth(caller);
-    let files = getUserFiles(caller);
-    if (not files.containsKey(id)) {
-      Runtime.trap("File not found");
+    if (balance < amount) { return false };
+    wallets.add(caller, balance - amount);
+    let txId = state.nextTxId;
+    state.nextTxId += 1;
+    let tx : Transaction = {
+      id        = txId;
+      owner     = caller;
+      kind      = #Withdrawal;
+      amount;
+      note      = "Withdrawal request";
+      timestamp = Time.now();
     };
-    files.remove(id);
-  };
-
-  // E2EE endpoints
-
-  public shared ({ caller }) func publishPublicKey(key : Blob) : async () {
-    requireAuth(caller);
-    if (key.size() == 0) {
-      Runtime.trap("Key cannot be empty");
+    let txList = switch (transactions.get(caller)) {
+      case (?lst) { lst };
+      case null    { List.empty<Transaction>() };
     };
-    userPublicKeys.add(caller, key);
+    txList.add(tx);
+    transactions.add(caller, txList);
+    true;
   };
 
-  public query ({ caller }) func getPublicKey(principal : Principal) : async ?Blob {
-    requireAuth(caller);
-    userPublicKeys.get(principal);
-  };
+  // ── Admin / testing helpers ──────────────────────────────────────────
 
-  public query ({ caller }) func getPublicKeys(principals : [Principal]) : async [(Principal, Blob)] {
-    requireAuth(caller);
-    let result = List.empty<(Principal, Blob)>();
-    for (p in principals.vals()) {
-      switch (userPublicKeys.get(p)) {
-        case (?key) { result.add((p, key)) };
-        case (null) {};
-      };
+  public shared func addSampleContest(matchId : Text, entryFee : Nat, prizePool : Nat, name : Text) : async Bool {
+    let mid = switch (Nat.fromText(matchId)) {
+      case (?n) { n };
+      case null  { return false };
     };
-    result.toArray();
+    switch (matches.get(mid)) {
+      case null  { return false };
+      case (?_m) {};
+    };
+    addContest(mid, name, #MiniLeague, entryFee, prizePool, 50);
+    true;
   };
 
-  public shared ({ caller }) func publishGroupKeys(conversationId : Nat, wrappedKeys : [(Principal, Blob)]) : async () {
-    requireAuth(caller);
-    if (not isConversationMember(conversationId, caller)) {
-      Runtime.trap("Not a member of this conversation");
-    };
-    // Only group admin can publish wrapped keys to prevent key substitution attacks
-    switch (conversations.get(conversationId)) {
-      case (?conv) {
-        switch (conv.groupInfo) {
-          case (?gi) {
-            if (gi.admin != caller) {
-              Runtime.trap("Only group admin can publish group keys");
-            };
-          };
-          case (null) {
-            Runtime.trap("publishGroupKeys is not supported for direct chats");
+  public shared func refreshLiveScores() : async () {
+    let now = Time.now();
+    lastHeartbeat := 0; // reset so heartbeat fires immediately
+    for ((_, m) in matches.entries()) {
+      if (m.status == #Live) {
+        updatePlayerPointsFromScore(m.id, m.sport);
+        updateTeamPoints(m.id);
+        matches.add(m.id, { m with lastUpdated = now });
+        for ((cid, c) in contests.entries()) {
+          if (c.matchId == m.id) {
+            recalcLeaderboard(cid);
           };
         };
       };
-      case (null) { Runtime.trap("Conversation not found") };
-    };
-    let keyMap = switch (conversationGroupKeys.get(conversationId)) {
-      case (?m) { m };
-      case (null) {
-        let m = Map.empty<Principal, WrappedGroupKey>();
-        conversationGroupKeys.add(conversationId, m);
-        m;
-      };
-    };
-    for ((p, encKey) in wrappedKeys.vals()) {
-      keyMap.add(p, { encryptedKey = encKey; wrappedBy = caller });
     };
   };
 
-  public query ({ caller }) func getMyGroupKey(conversationId : Nat) : async ?WrappedGroupKey {
-    requireAuth(caller);
-    if (not isConversationMember(conversationId, caller)) {
-      Runtime.trap("Not a member of this conversation");
-    };
-    switch (conversationGroupKeys.get(conversationId)) {
-      case (?keyMap) { keyMap.get(caller) };
-      case (null) { null };
-    };
-  };
-
-  public shared ({ caller }) func clearGroupKeys(conversationId : Nat) : async () {
-    requireAuth(caller);
-    if (not isConversationMember(conversationId, caller)) {
-      Runtime.trap("Not a member of this conversation");
-    };
-    // Only group admin can clear keys
-    switch (conversations.get(conversationId)) {
-      case (?conv) {
-        switch (conv.groupInfo) {
-          case (?gi) {
-            if (gi.admin != caller) {
-              Runtime.trap("Only group admin can clear keys");
-            };
-          };
-          case (null) { Runtime.trap("Not a group conversation") };
-        };
-      };
-      case (null) { Runtime.trap("Conversation not found") };
-    };
-    conversationGroupKeys.remove(conversationId);
-  };
 };
+

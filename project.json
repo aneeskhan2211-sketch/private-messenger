@@ -1,0 +1,23 @@
+{
+  "overview": "A Dream11-style fantasy sports platform where users create teams, join contests, track live scores and win real money prizes across cricket, football and kabaddi.",
+  "features": [
+    "Fantasy team creation with player budget and captain/vice-captain selection",
+    "Contest discovery and joining across cricket, football, and kabaddi",
+    "Real-time live scoring via sports data API polling",
+    "Live leaderboards with rank tracking during matches",
+    "Real-money wallet with Stripe payment integration",
+    "Contest history with winnings and prize tracking"
+  ],
+  "category": "sports-gaming",
+  "tags": [
+    "fantasy-sports",
+    "cricket",
+    "football",
+    "kabaddi",
+    "contests",
+    "real-money",
+    "leaderboard",
+    "dream11"
+  ],
+  "last_updated": "2026-05-25T10:27:44.213Z"
+}

@@ -10,277 +10,164 @@ import type { ActorMethod } from '@icp-sdk/core/agent';
 import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
-export interface Contact {
-  'status' : ContactStatus,
+export interface Contest {
+  'id' : bigint,
+  'contestType' : ContestType,
+  'name' : string,
+  'createdAt' : bigint,
+  'prizeBreakdown' : Array<[bigint, bigint]>,
+  'matchId' : bigint,
+  'entryFee' : bigint,
+  'filledSpots' : bigint,
+  'maxEntries' : bigint,
+  'prizePool' : bigint,
+}
+export interface ContestEntry {
+  'contestId' : bigint,
+  'owner' : Principal,
+  'joinedAt' : bigint,
+  'rank' : [] | [bigint],
+  'prize' : bigint,
+  'teamId' : bigint,
+  'points' : number,
+}
+export type ContestType = { 'Practice' : null } |
+  { 'Head2Head' : null } |
+  { 'MegaLeague' : null } |
+  { 'MiniLeague' : null };
+export interface FantasyTeam {
+  'id' : bigint,
+  'playerIds' : Array<bigint>,
+  'owner' : Principal,
+  'name' : string,
+  'createdAt' : bigint,
+  'viceCaptainId' : bigint,
+  'matchId' : bigint,
+  'totalPoints' : number,
+  'captainId' : bigint,
+}
+export interface LeaderboardEntry {
+  'teamName' : string,
   'principal' : Principal,
-  'addedAt' : bigint,
+  'rank' : bigint,
+  'prize' : bigint,
+  'points' : number,
 }
-export type ContactStatus = { 'Blocked' : null } |
-  { 'Accepted' : null } |
-  { 'Pending' : null };
-export interface ConversationPreview {
+export interface Match {
   'id' : bigint,
-  'members' : Array<PublicProfile>,
-  'lastMessageTime' : [] | [bigint],
-  'unreadCount' : bigint,
-  'groupInfo' : [] | [GroupInfo],
-  'conversationType' : ConversationType,
+  'startTime' : bigint,
+  'status' : MatchStatus,
+  'teamA' : Team,
+  'teamB' : Team,
+  'venue' : string,
+  'scoreA' : [] | [string],
+  'scoreB' : [] | [string],
+  'lastUpdated' : bigint,
+  'sport' : Sport,
 }
-export type ConversationType = { 'Group' : null } |
-  { 'Direct' : null };
-export type DisappearingTimer = { 'Off' : null } |
-  { 'Days30' : null } |
-  { 'Days7' : null } |
-  { 'Hours24' : null };
-export interface EncryptedEmailConfig {
-  'senderEmail' : string,
-  'encryptedApiKey' : Uint8Array,
-}
-export interface ExportContact {
-  'status' : ContactStatus,
-  'addedAt' : bigint,
-  'principalText' : string,
-}
-export interface ExportData {
-  'contacts' : Array<ExportContact>,
-  'exportedAt' : bigint,
-  'profile' : {
-    'bio' : string,
-    'emailVerified' : boolean,
-    'name' : string,
-    'email' : [] | [string],
-  },
-}
-export type ExternalBlob = Uint8Array;
-export type FileId = bigint;
-export interface FileMetadata {
-  'id' : FileId,
-  'blob' : ExternalBlob,
-  'name' : string,
-  'size' : bigint,
-  'fileType' : string,
-  'uploadDate' : bigint,
-}
-export interface GroupInfo {
-  'admin' : Principal,
-  'name' : string,
-  'avatar' : [] | [ExternalBlob],
-}
-export interface HttpHeader { 'value' : string, 'name' : string }
-export interface HttpRequestResult {
-  'status' : bigint,
-  'body' : Uint8Array,
-  'headers' : Array<HttpHeader>,
-}
-export interface Message {
+export type MatchStatus = { 'Live' : null } |
+  { 'Cancelled' : null } |
+  { 'Completed' : null } |
+  { 'Upcoming' : null };
+export interface Player {
   'id' : bigint,
-  'deleted' : boolean,
-  'content' : string,
-  'sender' : Principal,
-  'messageType' : MessageType,
-  'conversationId' : bigint,
-  'mediaBlob' : [] | [ExternalBlob],
+  'name' : string,
+  'role' : PlayerRole,
+  'team' : string,
+  'selPct' : number,
+  'credit' : number,
+  'matchId' : bigint,
+  'points' : number,
+}
+export type PlayerRole = { 'Defender2' : null } |
+  { 'Goalkeeper' : null } |
+  { 'AllRounder' : null } |
+  { 'WicketKeeper' : null } |
+  { 'Batsman' : null } |
+  { 'Bowler' : null } |
+  { 'AllRounderKabaddi' : null } |
+  { 'Midfielder' : null } |
+  { 'Forward' : null } |
+  { 'Defender' : null } |
+  { 'Raider' : null };
+export type Sport = { 'Football' : null } |
+  { 'Cricket' : null } |
+  { 'Kabaddi' : null };
+export interface StripeConfiguration {
+  'allowedCountries' : Array<string>,
+  'secretKey' : string,
+}
+export type StripeSessionStatus = {
+    'completed' : { 'userPrincipal' : [] | [string], 'response' : string }
+  } |
+  { 'failed' : { 'error' : string } };
+export interface Team {
+  'code' : string,
+  'logo' : [] | [string],
+  'name' : string,
+}
+export interface Transaction {
+  'id' : bigint,
+  'owner' : Principal,
+  'kind' : TransactionKind,
+  'note' : string,
   'timestamp' : bigint,
-  'mediaName' : [] | [string],
-  'mediaSize' : [] | [bigint],
-  'replyToId' : [] | [bigint],
-  'reactions' : Array<[Principal, string]>,
+  'amount' : bigint,
 }
-export type MessageType = { 'File' : null } |
-  { 'Text' : null } |
-  { 'Image' : null } |
-  { 'Audio' : null } |
-  { 'Video' : null };
-export interface Notification {
-  'id' : bigint,
-  'kind' : NotificationKind,
-  'read' : boolean,
-  'fromPrincipal' : [] | [Principal],
-  'conversationId' : [] | [bigint],
-  'timestamp' : bigint,
-}
-export type NotificationKind = { 'ContactRequest' : null } |
-  { 'StatusReaction' : null } |
-  { 'Mention' : null } |
-  { 'ContactAccepted' : null } |
-  { 'NewMessage' : null } |
-  { 'GroupInvite' : null };
-export interface Profile {
-  'bio' : string,
-  'twoFactorEnabled' : boolean,
-  'emailVerified' : boolean,
-  'name' : string,
-  'email' : [] | [string],
-  'lastSeen' : bigint,
-  'avatar' : [] | [ExternalBlob],
-}
-export interface PublicProfile {
-  'bio' : string,
-  'principal' : Principal,
-  'name' : string,
-  'lastSeen' : bigint,
-  'avatar' : [] | [ExternalBlob],
-}
-export interface StatusUpdate {
-  'id' : bigint,
-  'postedAt' : bigint,
-  'content' : string,
-  'expiresAt' : bigint,
-  'author' : Principal,
-  'mediaBlob' : [] | [ExternalBlob],
-  'reactions' : Array<[Principal, string]>,
-}
+export type TransactionKind = { 'Deposit' : null } |
+  { 'Refund' : null } |
+  { 'Withdrawal' : null } |
+  { 'PrizeCredit' : null } |
+  { 'ContestEntry' : null };
 export interface TransformationInput {
   'context' : Uint8Array,
-  'response' : HttpRequestResult,
+  'response' : http_request_result,
 }
 export interface TransformationOutput {
   'status' : bigint,
   'body' : Uint8Array,
-  'headers' : Array<HttpHeader>,
+  'headers' : Array<http_header>,
 }
-export interface WrappedGroupKey {
-  'encryptedKey' : Uint8Array,
-  'wrappedBy' : Principal,
+export interface UserProfile {
+  'principal' : Principal,
+  'username' : string,
+  'joinedAt' : bigint,
+  'phone' : [] | [string],
+  'kycDone' : boolean,
 }
-export interface _CaffeineStorageCreateCertificateResult {
-  'method' : string,
-  'blob_hash' : string,
-}
-export interface _CaffeineStorageRefillInformation {
-  'proposed_top_up_amount' : [] | [bigint],
-}
-export interface _CaffeineStorageRefillResult {
-  'success' : [] | [boolean],
-  'topped_up_amount' : [] | [bigint],
+export interface http_header { 'value' : string, 'name' : string }
+export interface http_request_result {
+  'status' : bigint,
+  'body' : Uint8Array,
+  'headers' : Array<http_header>,
 }
 export interface _SERVICE {
-  '_caffeineStorageBlobIsLive' : ActorMethod<[Uint8Array], boolean>,
-  '_caffeineStorageBlobsToDelete' : ActorMethod<[], Array<Uint8Array>>,
-  '_caffeineStorageConfirmBlobDeletion' : ActorMethod<
-    [Array<Uint8Array>],
-    undefined
+  'addSampleContest' : ActorMethod<[string, bigint, bigint, string], boolean>,
+  'confirmPayment' : ActorMethod<[string], boolean>,
+  'createCheckoutSession' : ActorMethod<[bigint], string>,
+  'createTeam' : ActorMethod<
+    [bigint, string, Array<bigint>, bigint, bigint],
+    FantasyTeam
   >,
-  '_caffeineStorageCreateCertificate' : ActorMethod<
-    [string],
-    _CaffeineStorageCreateCertificateResult
-  >,
-  '_caffeineStorageRefillCashier' : ActorMethod<
-    [[] | [_CaffeineStorageRefillInformation]],
-    _CaffeineStorageRefillResult
-  >,
-  '_caffeineStorageUpdateGatewayPrincipals' : ActorMethod<[], undefined>,
-  'acceptContactRequest' : ActorMethod<[Principal], undefined>,
-  'addContactByPrincipal' : ActorMethod<[string], undefined>,
-  'addGroupMember' : ActorMethod<[bigint, Principal], undefined>,
-  'addReaction' : ActorMethod<[bigint, bigint, string], undefined>,
-  'blockUser' : ActorMethod<[Principal], undefined>,
-  'clearGroupKeys' : ActorMethod<[bigint], undefined>,
-  'createGroup' : ActorMethod<
-    [string, Array<Principal>, [] | [ExternalBlob]],
-    bigint
-  >,
-  'deleteFile' : ActorMethod<[FileId], undefined>,
-  'deleteMessage' : ActorMethod<[bigint, bigint], undefined>,
-  'deleteStatus' : ActorMethod<[bigint], undefined>,
-  'exportUserData' : ActorMethod<[], ExportData>,
-  'getAllFiles' : ActorMethod<[], Array<FileMetadata>>,
-  'getBlockedUsers' : ActorMethod<[], Array<PublicProfile>>,
-  'getContactStatuses' : ActorMethod<[], Array<StatusUpdate>>,
-  'getContacts' : ActorMethod<[], Array<[Contact, PublicProfile]>>,
-  'getConversations' : ActorMethod<[], Array<ConversationPreview>>,
-  'getDisappearingTimer' : ActorMethod<[bigint], DisappearingTimer>,
-  'getEmailVerificationStatus' : ActorMethod<
-    [],
-    { 'verified' : boolean, 'email' : [] | [string] }
-  >,
-  'getEncryptedEmailConfig' : ActorMethod<[], [] | [EncryptedEmailConfig]>,
-  'getFile' : ActorMethod<[FileId], FileMetadata>,
-  'getGroupInfo' : ActorMethod<
-    [bigint],
-    {
-      'members' : Array<PublicProfile>,
-      'admin' : Principal,
-      'name' : string,
-      'avatar' : [] | [ExternalBlob],
-    }
-  >,
-  'getMessages' : ActorMethod<[bigint, [] | [bigint], bigint], Array<Message>>,
-  'getMyGroupKey' : ActorMethod<[bigint], [] | [WrappedGroupKey]>,
-  'getMyStatuses' : ActorMethod<[], Array<StatusUpdate>>,
-  'getNotifications' : ActorMethod<[bigint], Array<Notification>>,
-  'getPendingRequests' : ActorMethod<[], Array<[Contact, PublicProfile]>>,
-  'getProfile' : ActorMethod<[], [] | [Profile]>,
-  'getPublicKey' : ActorMethod<[Principal], [] | [Uint8Array]>,
-  'getPublicKeys' : ActorMethod<
-    [Array<Principal>],
-    Array<[Principal, Uint8Array]>
-  >,
-  'getPublicProfile' : ActorMethod<[Principal], PublicProfile>,
-  'getShareId' : ActorMethod<[], string>,
-  'getTwoFactorStatus' : ActorMethod<
-    [],
-    { 'emailVerified' : boolean, 'email' : [] | [string], 'enabled' : boolean }
-  >,
-  'getTypingUsers' : ActorMethod<[bigint], Array<Principal>>,
-  'getUnreadCount' : ActorMethod<[], bigint>,
-  'getVetKdPublicKey' : ActorMethod<[], Uint8Array>,
-  'getVetKey' : ActorMethod<[Uint8Array], Uint8Array>,
-  'importUserData' : ActorMethod<
-    [ExportData],
-    { 'contactsRequested' : bigint }
-  >,
-  'leaveGroup' : ActorMethod<[bigint], undefined>,
-  'markAsRead' : ActorMethod<[bigint, bigint], undefined>,
-  'markNotificationsRead' : ActorMethod<[bigint], undefined>,
-  'postStatus' : ActorMethod<[string, [] | [ExternalBlob]], bigint>,
-  'publishGroupKeys' : ActorMethod<
-    [bigint, Array<[Principal, Uint8Array]>],
-    undefined
-  >,
-  'publishPublicKey' : ActorMethod<[Uint8Array], undefined>,
-  'reactToStatus' : ActorMethod<[bigint, string], undefined>,
-  'rejectContactRequest' : ActorMethod<[Principal], undefined>,
-  'removeContact' : ActorMethod<[Principal], undefined>,
-  'removeGroupMember' : ActorMethod<[bigint, Principal], undefined>,
-  'removeReaction' : ActorMethod<[bigint, bigint, string], undefined>,
-  'reportUser' : ActorMethod<[Principal, string], undefined>,
-  'requestEmailVerification' : ActorMethod<[string, string, string], undefined>,
-  'requestLoginOtp' : ActorMethod<[string, string], undefined>,
-  'searchUsers' : ActorMethod<[string], Array<PublicProfile>>,
-  'sendContactRequest' : ActorMethod<[Principal], undefined>,
-  'sendMessage' : ActorMethod<
-    [
-      bigint,
-      string,
-      MessageType,
-      [] | [ExternalBlob],
-      [] | [string],
-      [] | [bigint],
-      [] | [bigint],
-      [] | [Array<Principal>],
-    ],
-    bigint
-  >,
-  'setDisappearingTimer' : ActorMethod<[bigint, DisappearingTimer], undefined>,
-  'setEncryptedEmailConfig' : ActorMethod<[Uint8Array, string], undefined>,
-  'setProfile' : ActorMethod<[string, string, [] | [ExternalBlob]], undefined>,
-  'setTwoFactorEnabled' : ActorMethod<[boolean], undefined>,
-  'setTyping' : ActorMethod<[bigint], undefined>,
-  'startDirectChat' : ActorMethod<[Principal], bigint>,
-  'toggleNotificationRead' : ActorMethod<[bigint], undefined>,
+  'getContest' : ActorMethod<[bigint], [] | [Contest]>,
+  'getContestHistory' : ActorMethod<[], Array<ContestEntry>>,
+  'getContests' : ActorMethod<[bigint], Array<Contest>>,
+  'getLeaderboard' : ActorMethod<[bigint], Array<LeaderboardEntry>>,
+  'getMatch' : ActorMethod<[bigint], [] | [Match]>,
+  'getMatches' : ActorMethod<[], Array<Match>>,
+  'getMyTeams' : ActorMethod<[], Array<FantasyTeam>>,
+  'getPlayers' : ActorMethod<[bigint], Array<Player>>,
+  'getStripeSessionStatus' : ActorMethod<[string], StripeSessionStatus>,
+  'getTransactions' : ActorMethod<[], Array<Transaction>>,
+  'getUserProfile' : ActorMethod<[], [] | [UserProfile]>,
+  'getWalletBalance' : ActorMethod<[], bigint>,
+  'isStripeConfigured' : ActorMethod<[], boolean>,
+  'joinContest' : ActorMethod<[bigint, bigint], ContestEntry>,
+  'refreshLiveScores' : ActorMethod<[], undefined>,
+  'setStripeConfiguration' : ActorMethod<[StripeConfiguration], undefined>,
+  'setUserProfile' : ActorMethod<[string, [] | [string]], UserProfile>,
   'transform' : ActorMethod<[TransformationInput], TransformationOutput>,
-  'unblockUser' : ActorMethod<[Principal], undefined>,
-  'updateGroup' : ActorMethod<
-    [bigint, [] | [string], [] | [ExternalBlob]],
-    undefined
-  >,
-  'uploadFile' : ActorMethod<
-    [string, bigint, string, ExternalBlob],
-    FileMetadata
-  >,
-  'verifyEmailOtp' : ActorMethod<[string], undefined>,
-  'verifyLoginOtp' : ActorMethod<[string], boolean>,
+  'withdrawRequest' : ActorMethod<[bigint], boolean>,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];

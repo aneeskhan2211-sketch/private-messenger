@@ -1,0 +1,197 @@
+type http_request_result = 
+ record {
+   body: blob;
+   headers: vec http_header;
+   status: nat;
+ };
+type http_header = 
+ record {
+   name: text;
+   value: text;
+ };
+type UserProfile = 
+ record {
+   joinedAt: int;
+   kycDone: bool;
+   phone: opt text;
+   "principal": principal;
+   username: text;
+ };
+type TransformationOutput = 
+ record {
+   body: blob;
+   headers: vec http_header;
+   status: nat;
+ };
+type TransformationInput = 
+ record {
+   context: blob;
+   response: http_request_result;
+ };
+type TransactionKind = 
+ variant {
+   ContestEntry;
+   Deposit;
+   PrizeCredit;
+   Refund;
+   Withdrawal;
+ };
+type Transaction = 
+ record {
+   amount: nat;
+   id: nat;
+   kind: TransactionKind;
+   note: text;
+   owner: principal;
+   timestamp: int;
+ };
+type Team = 
+ record {
+   code: text;
+   logo: opt text;
+   name: text;
+ };
+type StripeSessionStatus = 
+ variant {
+   completed: record {
+                response: text;
+                userPrincipal: opt text;
+              };
+   failed: record {error: text;};
+ };
+type StripeConfiguration = 
+ record {
+   allowedCountries: vec text;
+   secretKey: text;
+ };
+type Sport = 
+ variant {
+   Cricket;
+   Football;
+   Kabaddi;
+ };
+type PlayerRole = 
+ variant {
+   AllRounder;
+   AllRounderKabaddi;
+   Batsman;
+   Bowler;
+   Defender;
+   Defender2;
+   Forward;
+   Goalkeeper;
+   Midfielder;
+   Raider;
+   WicketKeeper;
+ };
+type Player = 
+ record {
+   credit: float64;
+   id: nat;
+   matchId: nat;
+   name: text;
+   points: float64;
+   role: PlayerRole;
+   selPct: float64;
+   team: text;
+ };
+type MatchStatus = 
+ variant {
+   Cancelled;
+   Completed;
+   Live;
+   Upcoming;
+ };
+type Match = 
+ record {
+   id: nat;
+   lastUpdated: int;
+   scoreA: opt text;
+   scoreB: opt text;
+   sport: Sport;
+   startTime: int;
+   status: MatchStatus;
+   teamA: Team;
+   teamB: Team;
+   venue: text;
+ };
+type LeaderboardEntry = 
+ record {
+   points: float64;
+   "principal": principal;
+   prize: nat;
+   rank: nat;
+   teamName: text;
+ };
+type FantasyTeam = 
+ record {
+   captainId: nat;
+   createdAt: int;
+   id: nat;
+   matchId: nat;
+   name: text;
+   owner: principal;
+   playerIds: vec nat;
+   totalPoints: float64;
+   viceCaptainId: nat;
+ };
+type ContestType = 
+ variant {
+   Head2Head;
+   MegaLeague;
+   MiniLeague;
+   Practice;
+ };
+type ContestEntry = 
+ record {
+   contestId: nat;
+   joinedAt: int;
+   owner: principal;
+   points: float64;
+   prize: nat;
+   rank: opt nat;
+   teamId: nat;
+ };
+type Contest = 
+ record {
+   contestType: ContestType;
+   createdAt: int;
+   entryFee: nat;
+   filledSpots: nat;
+   id: nat;
+   matchId: nat;
+   maxEntries: nat;
+   name: text;
+   prizeBreakdown: vec record {
+                         nat;
+                         nat;
+                       };
+   prizePool: nat;
+ };
+service : {
+  addSampleContest: (matchId: text, entryFee: nat, prizePool: nat, name:
+   text) -> (bool);
+  confirmPayment: (sessionId: text) -> (bool);
+  createCheckoutSession: (amount: nat) -> (text);
+  createTeam: (matchId: nat, name: text, playerIds: vec nat, captainId: 
+   nat, viceCaptainId: nat) -> (FantasyTeam);
+  getContest: (contestId: nat) -> (opt Contest) query;
+  getContestHistory: () -> (vec ContestEntry) query;
+  getContests: (matchId: nat) -> (vec Contest) query;
+  getLeaderboard: (contestId: nat) -> (vec LeaderboardEntry) query;
+  getMatch: (matchId: nat) -> (opt Match) query;
+  getMatches: () -> (vec Match) query;
+  getMyTeams: () -> (vec FantasyTeam) query;
+  getPlayers: (matchId: nat) -> (vec Player) query;
+  getStripeSessionStatus: (sessionId: text) -> (StripeSessionStatus);
+  getTransactions: () -> (vec Transaction) query;
+  getUserProfile: () -> (opt UserProfile) query;
+  getWalletBalance: () -> (nat) query;
+  isStripeConfigured: () -> (bool) query;
+  joinContest: (contestId: nat, teamId: nat) -> (ContestEntry);
+  refreshLiveScores: () -> ();
+  setStripeConfiguration: (config: StripeConfiguration) -> ();
+  setUserProfile: (username: text, phone: opt text) -> (UserProfile);
+  transform: (input: TransformationInput) -> (TransformationOutput) query;
+  withdrawRequest: (amount: nat) -> (bool);
+}

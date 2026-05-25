@@ -4,14 +4,15 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "build:skip-bindings": "vite build && pnpm copy:env",
-    "copy:env": "cp env.json dist/",
+    "dev": "vite",
     "build": "vite build && pnpm copy:env",
-    "typecheck": "tsc --noEmit --incremental --tsBuildInfoFile node_modules/.cache/tsconfig.tsbuildinfo --pretty",
+    "copy:env": "cp env.json dist/",
+    "typecheck": "tsc --noEmit",
     "check": "biome check src",
     "fix": "biome check --write src"
   },
   "devDependencies": {
+    "@biomejs/biome": "^1.9.0",
     "@tailwindcss/container-queries": "^0.1.1",
     "@types/node": "^20.9.0",
     "@types/react": "~19.1.0",
@@ -27,10 +28,10 @@
     "tailwindcss-animate": "^1.0.7",
     "typescript": "^5.8.3",
     "vite": "^5.4.1",
-    "vite-plugin-environment": "^1.1.3",
-    "@biomejs/biome": "^1.9.0"
+    "vite-plugin-environment": "^1.1.3"
   },
   "dependencies": {
+    "@caffeineai/core-infrastructure": "^0.3.0",
     "@dfinity/agent": "~3.3.0",
     "@dfinity/identity": "~3.3.0",
     "@dfinity/auth-client": "~3.3.0",
