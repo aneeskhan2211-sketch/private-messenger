@@ -19,6 +19,18 @@ export const FantasyTeam = IDL.Record({
   'totalPoints' : IDL.Float64,
   'captainId' : IDL.Nat,
 });
+export const BallEvent = IDL.Record({
+  'ball' : IDL.Text,
+  'over' : IDL.Text,
+  'runs' : IDL.Nat,
+  'batter' : IDL.Text,
+  'description' : IDL.Text,
+  'bowler' : IDL.Text,
+  'isWicket' : IDL.Bool,
+  'timestamp' : IDL.Int,
+  'isSix' : IDL.Bool,
+  'isBoundary' : IDL.Bool,
+});
 export const ContestType = IDL.Variant({
   'Practice' : IDL.Null,
   'Head2Head' : IDL.Null,
@@ -80,6 +92,9 @@ export const Match = IDL.Record({
   'scoreB' : IDL.Opt(IDL.Text),
   'lastUpdated' : IDL.Int,
   'sport' : Sport,
+  'ballHistory' : IDL.Vec(BallEvent),
+  'currentOver' : IDL.Opt(IDL.Text),
+  'liveStatus' : IDL.Opt(IDL.Text),
 });
 export const PlayerRole = IDL.Variant({
   'Defender2' : IDL.Null,
@@ -96,6 +111,7 @@ export const PlayerRole = IDL.Variant({
 });
 export const Player = IDL.Record({
   'id' : IDL.Nat,
+  'country' : IDL.Opt(IDL.Text),
   'name' : IDL.Text,
   'role' : PlayerRole,
   'team' : IDL.Text,
@@ -103,6 +119,7 @@ export const Player = IDL.Record({
   'credit' : IDL.Float64,
   'matchId' : IDL.Nat,
   'points' : IDL.Float64,
+  'avatar' : IDL.Opt(IDL.Text),
 });
 export const StripeSessionStatus = IDL.Variant({
   'completed' : IDL.Record({
@@ -169,6 +186,8 @@ export const idlService = IDL.Service({
       [FantasyTeam],
       [],
     ),
+  'getApiKey' : IDL.Func([], [IDL.Opt(IDL.Text)], ['query']),
+  'getBallHistory' : IDL.Func([IDL.Nat], [IDL.Vec(BallEvent)], ['query']),
   'getContest' : IDL.Func([IDL.Nat], [IDL.Opt(Contest)], ['query']),
   'getContestHistory' : IDL.Func([], [IDL.Vec(ContestEntry)], ['query']),
   'getContests' : IDL.Func([IDL.Nat], [IDL.Vec(Contest)], ['query']),
@@ -188,6 +207,7 @@ export const idlService = IDL.Service({
   'isStripeConfigured' : IDL.Func([], [IDL.Bool], ['query']),
   'joinContest' : IDL.Func([IDL.Nat, IDL.Nat], [ContestEntry], []),
   'refreshLiveScores' : IDL.Func([], [], []),
+  'setApiKey' : IDL.Func([IDL.Text], [], []),
   'setStripeConfiguration' : IDL.Func([StripeConfiguration], [], []),
   'setUserProfile' : IDL.Func([IDL.Text, IDL.Opt(IDL.Text)], [UserProfile], []),
   'transform' : IDL.Func(
@@ -211,6 +231,18 @@ export const idlFactory = ({ IDL }) => {
     'matchId' : IDL.Nat,
     'totalPoints' : IDL.Float64,
     'captainId' : IDL.Nat,
+  });
+  const BallEvent = IDL.Record({
+    'ball' : IDL.Text,
+    'over' : IDL.Text,
+    'runs' : IDL.Nat,
+    'batter' : IDL.Text,
+    'description' : IDL.Text,
+    'bowler' : IDL.Text,
+    'isWicket' : IDL.Bool,
+    'timestamp' : IDL.Int,
+    'isSix' : IDL.Bool,
+    'isBoundary' : IDL.Bool,
   });
   const ContestType = IDL.Variant({
     'Practice' : IDL.Null,
@@ -273,6 +305,9 @@ export const idlFactory = ({ IDL }) => {
     'scoreB' : IDL.Opt(IDL.Text),
     'lastUpdated' : IDL.Int,
     'sport' : Sport,
+    'ballHistory' : IDL.Vec(BallEvent),
+    'currentOver' : IDL.Opt(IDL.Text),
+    'liveStatus' : IDL.Opt(IDL.Text),
   });
   const PlayerRole = IDL.Variant({
     'Defender2' : IDL.Null,
@@ -289,6 +324,7 @@ export const idlFactory = ({ IDL }) => {
   });
   const Player = IDL.Record({
     'id' : IDL.Nat,
+    'country' : IDL.Opt(IDL.Text),
     'name' : IDL.Text,
     'role' : PlayerRole,
     'team' : IDL.Text,
@@ -296,6 +332,7 @@ export const idlFactory = ({ IDL }) => {
     'credit' : IDL.Float64,
     'matchId' : IDL.Nat,
     'points' : IDL.Float64,
+    'avatar' : IDL.Opt(IDL.Text),
   });
   const StripeSessionStatus = IDL.Variant({
     'completed' : IDL.Record({
@@ -359,6 +396,8 @@ export const idlFactory = ({ IDL }) => {
         [FantasyTeam],
         [],
       ),
+    'getApiKey' : IDL.Func([], [IDL.Opt(IDL.Text)], ['query']),
+    'getBallHistory' : IDL.Func([IDL.Nat], [IDL.Vec(BallEvent)], ['query']),
     'getContest' : IDL.Func([IDL.Nat], [IDL.Opt(Contest)], ['query']),
     'getContestHistory' : IDL.Func([], [IDL.Vec(ContestEntry)], ['query']),
     'getContests' : IDL.Func([IDL.Nat], [IDL.Vec(Contest)], ['query']),
@@ -378,6 +417,7 @@ export const idlFactory = ({ IDL }) => {
     'isStripeConfigured' : IDL.Func([], [IDL.Bool], ['query']),
     'joinContest' : IDL.Func([IDL.Nat, IDL.Nat], [ContestEntry], []),
     'refreshLiveScores' : IDL.Func([], [], []),
+    'setApiKey' : IDL.Func([IDL.Text], [], []),
     'setStripeConfiguration' : IDL.Func([StripeConfiguration], [], []),
     'setUserProfile' : IDL.Func(
         [IDL.Text, IDL.Opt(IDL.Text)],

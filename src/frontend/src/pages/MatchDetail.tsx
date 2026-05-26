@@ -1,5 +1,11 @@
 import { MatchStatus, PlayerRole, Sport } from "@/backend";
 import type { Player } from "@/backend";
+import {
+  BallIcon,
+  LiveIndicatorDot,
+  ScoreChangeBadge,
+  WicketIcon,
+} from "@/components/AnimatedIcons";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -10,6 +16,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
   useContests,
   useCreateTeam,
+  useGetBallHistory,
   useMatch,
   useMyTeams,
   usePlayers,
@@ -116,6 +123,7 @@ export default function MatchDetailPage() {
   const { data: contests, isLoading: contestsLoading } = useContests(matchId);
   const { data: myTeams } = useMyTeams();
   const createTeam = useCreateTeam();
+  const { data: ballHistory } = useGetBallHistory(Number(matchId));
 
   const [selectedPlayers, setSelectedPlayers] = useState<Set<string>>(
     new Set(),
@@ -307,6 +315,95 @@ export default function MatchDetailPage() {
         </CardContent>
       </Card>
 
+      {/* Live Score Section */}
+      {match.status === MatchStatus.Live && (
+        <Card className="bg-card border-border border-live-green/30 overflow-hidden">
+          <CardContent className="p-0">
+            <div className="bg-gradient-to-r from-live-green/10 via-background to-live-green/10 p-4 sm:p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <LiveIndicatorDot />
+                  <span className="text-sm font-bold text-live-green uppercase tracking-wider">
+                    Live
+                  </span>
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  {match.venue}
+                </div>
+              </div>
+
+              {match.liveStatus && (
+                <div className="text-center mb-4">
+                  <p className="text-2xl font-display font-bold text-foreground">
+                    {match.liveStatus}
+                  </p>
+                  {match.currentOver && (
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Over {match.currentOver}
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {/* Ball-by-ball feed */}
+              {ballHistory && ballHistory.length > 0 && (
+                <div className="mt-4">
+                  <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                    Ball-by-Ball
+                  </h4>
+                  <div className="flex gap-2 overflow-x-auto pb-2">
+                    {ballHistory.slice(-10).map((ball, idx) => (
+                      <div
+                        key={`${ball.over}-${ball.ball}-${idx}`}
+                        className={`ball-card-in flex-shrink-0 w-20 p-2 rounded-lg border ${
+                          ball.isWicket
+                            ? "bg-destructive/10 border-destructive/30"
+                            : ball.isBoundary || ball.isSix
+                              ? "bg-boundary/10 border-boundary/30"
+                              : "bg-muted/40 border-border"
+                        }`}
+                        data-ocid={`matchdetail.ball_event.${idx + 1}`}
+                      >
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-[10px] text-muted-foreground">
+                            {ball.over}.{ball.ball}
+                          </span>
+                          {ball.isWicket ? (
+                            <WicketIcon className="w-3 h-3 text-destructive" />
+                          ) : (
+                            <BallIcon className="w-3 h-3 text-muted-foreground" />
+                          )}
+                        </div>
+                        <div className="flex justify-center mb-1">
+                          <ScoreChangeBadge
+                            runs={Number(ball.runs)}
+                            className={
+                              ball.isBoundary || ball.isSix
+                                ? "score-flash-boundary"
+                                : ball.isWicket
+                                  ? "score-flash-wicket"
+                                  : ""
+                            }
+                          />
+                        </div>
+                        <p className="text-[9px] text-muted-foreground text-center truncate">
+                          {ball.batter}
+                        </p>
+                        {ball.description && (
+                          <p className="text-[8px] text-muted-foreground text-center truncate mt-0.5">
+                            {ball.description}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Budget & Selection */}
       <Card className="bg-card border-border">
         <CardContent className="p-4 space-y-3">
@@ -464,7 +561,9 @@ export default function MatchDetailPage() {
                   <Card
                     key={id}
                     className={`bg-card border-border transition-all duration-200 ${
-                      isSelected ? "border-primary/50 shadow-sm" : ""
+                      isSelected
+                        ? "border-primary/50 shadow-sm player-card-selected"
+                        : ""
                     }`}
                     data-ocid={`matchdetail.player_card.${role.toLowerCase()}.${pIdx + 1}`}
                   >
@@ -477,19 +576,22 @@ export default function MatchDetailPage() {
                         }
                         data-ocid={`matchdetail.player_checkbox.${role.toLowerCase()}.${pIdx + 1}`}
                       />
-                      <img
-                        src={
-                          (player as { avatar?: string }).avatar ||
-                          `https://ui-avatars.com/api/?name=${encodeURIComponent(player.name)}&background=1a1a2e&color=f97316&size=128`
-                        }
-                        alt={player.name}
-                        className="w-10 h-10 rounded-full object-cover bg-primary/10 shrink-0"
-                        onError={(e) => {
-                          const el = e.currentTarget;
-                          el.onerror = null;
-                          el.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(player.name)}&background=1a1a2e&color=f97316&size=128`;
-                        }}
-                      />
+                      {(player as { avatar?: string }).avatar ? (
+                        <img
+                          src={(player as { avatar?: string }).avatar}
+                          alt={player.name}
+                          className="h-10 w-10 rounded-full object-cover shrink-0"
+                          onError={(e) => {
+                            const el = e.currentTarget;
+                            el.onerror = null;
+                            el.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(player.name)}&background=1a1a2e&color=f97316&size=128`;
+                          }}
+                        />
+                      ) : (
+                        <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm shrink-0">
+                          {player.name[0]}
+                        </div>
+                      )}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
                           <span className="font-medium text-foreground truncate">
@@ -511,6 +613,14 @@ export default function MatchDetailPage() {
                           <span>•</span>
                           <span>{player.credit}Cr</span>
                           <span>•</span>
+                          {(player as { country?: string }).country && (
+                            <Badge
+                              variant="outline"
+                              className="text-[10px] px-1 py-0 h-auto bg-muted/50"
+                            >
+                              {(player as { country?: string }).country}
+                            </Badge>
+                          )}
                           <Badge
                             variant="outline"
                             className={`text-[10px] px-1 py-0 h-auto ${

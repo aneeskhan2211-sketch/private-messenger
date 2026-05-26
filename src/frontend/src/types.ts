@@ -1,15 +1,16 @@
 import type {
+  BallEvent,
   Contest,
   ContestEntry,
   FantasyTeam,
   LeaderboardEntry,
+  Match,
+  Player,
   StripeConfiguration,
   StripeSessionStatus,
+  Team,
   Transaction,
   UserProfile,
-  Match as _Match,
-  Player as _Player,
-  Team as _Team,
 } from "@/backend";
 
 export {
@@ -20,9 +21,7 @@ export {
   TransactionKind,
 } from "@/backend";
 
-export type Player = _Player & { avatar?: string };
-export type Team = _Team & { logo?: string };
-export type Match = _Match;
+export type { BallEvent, Match, Player, Team };
 
 export type {
   FantasyTeam,

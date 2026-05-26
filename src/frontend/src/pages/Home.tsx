@@ -26,6 +26,7 @@ import {
   Wallet,
   Zap,
 } from "lucide-react";
+import { LiveIndicatorDot } from "../components/AnimatedIcons";
 
 function fmtCurrency(n: bigint) {
   return n === BigInt(0) ? "FREE" : `₹${(Number(n) / 100).toFixed(2)}`;
@@ -161,8 +162,8 @@ export default function HomePage() {
             <CardContent className="p-0">
               <div className="bg-gradient-to-r from-red-500/10 via-background to-red-500/10 px-5 py-4">
                 <div className="flex items-center justify-between mb-3">
-                  <Badge className="bg-red-500/20 text-red-400 border-red-500/30 text-[10px] animate-pulse">
-                    <span className="w-1.5 h-1.5 rounded-full bg-red-400 mr-1" />
+                  <Badge className="bg-red-500/20 text-red-400 border-red-500/30 text-[10px] flex items-center gap-1">
+                    <LiveIndicatorDot />
                     LIVE
                   </Badge>
                   <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">
@@ -303,15 +304,36 @@ export default function HomePage() {
                       </span>
                     </Badge>
                     {m.status === MatchStatus.Live && (
-                      <Badge className="bg-red-500/20 text-red-400 border-red-500/30 text-[10px] animate-pulse">
-                        <span className="w-1.5 h-1.5 rounded-full bg-red-400 mr-1" />
+                      <Badge className="bg-red-500/20 text-red-400 border-red-500/30 text-[10px] flex items-center gap-1">
+                        <LiveIndicatorDot />
                         LIVE
                       </Badge>
                     )}
                   </div>
-                  <div className="text-sm font-bold text-foreground mb-1">
-                    {m.teamA.name} vs {m.teamB.name}
+                  <div className="flex items-center gap-2 mb-1">
+                    {m.teamA.logo && (
+                      <img
+                        src={m.teamA.logo}
+                        alt={m.teamA.name}
+                        className="h-6 w-6 object-contain"
+                      />
+                    )}
+                    <div className="text-sm font-bold text-foreground">
+                      {m.teamA.name} vs {m.teamB.name}
+                    </div>
+                    {m.teamB.logo && (
+                      <img
+                        src={m.teamB.logo}
+                        alt={m.teamB.name}
+                        className="h-6 w-6 object-contain"
+                      />
+                    )}
                   </div>
+                  {m.liveStatus && (
+                    <div className="text-xs text-primary font-medium mb-1">
+                      {m.liveStatus}
+                    </div>
+                  )}
                   <div className="text-xs text-muted-foreground mb-2">
                     {m.venue}
                   </div>

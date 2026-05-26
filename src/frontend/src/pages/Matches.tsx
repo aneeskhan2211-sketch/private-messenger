@@ -1,3 +1,4 @@
+import { LiveIndicatorDot } from "@/components/AnimatedIcons";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -90,12 +91,7 @@ function MatchCard({ match }: { match: Match }) {
             <span className="ml-1">{match.sport}</span>
           </Badge>
           <div className="flex items-center gap-2">
-            {isLive && (
-              <span className="relative flex h-2.5 w-2.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
-              </span>
-            )}
+            {isLive && <LiveIndicatorDot />}
             <Badge
               variant="outline"
               className={`text-xs font-medium ${statusStyle}`}
@@ -149,6 +145,21 @@ function MatchCard({ match }: { match: Match }) {
             )}
           </div>
         </div>
+
+        {(match.liveStatus || match.currentOver) && (
+          <div className="mt-3 p-3 bg-muted/40 rounded-lg border border-border/50 mb-4">
+            {match.liveStatus && (
+              <p className="text-sm font-semibold text-foreground text-center">
+                {match.liveStatus}
+              </p>
+            )}
+            {match.currentOver && (
+              <p className="text-xs text-muted-foreground text-center mt-1">
+                Over {match.currentOver}
+              </p>
+            )}
+          </div>
+        )}
 
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground mb-4">
           <div className="flex items-center gap-1.5">

@@ -1,3 +1,4 @@
+import { RankChangeIndicator } from "@/components/AnimatedIcons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -10,16 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Link, useParams } from "@tanstack/react-router";
-import {
-  ArrowLeft,
-  Award,
-  Crown,
-  Medal,
-  TrendingDown,
-  TrendingUp,
-  Trophy,
-  Users,
-} from "lucide-react";
+import { ArrowLeft, Award, Crown, Medal, Trophy, Users } from "lucide-react";
 import { useMemo } from "react";
 import { toast } from "sonner";
 import {
@@ -72,13 +64,8 @@ function getRankIcon(rank: bigint) {
 }
 
 function getTrendIndicator(current: number, previous: number) {
-  if (current > previous) {
-    return <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />;
-  }
-  if (current < previous) {
-    return <TrendingDown className="w-3.5 h-3.5 text-red-400" />;
-  }
-  return null;
+  const change = current - previous;
+  return <RankChangeIndicator change={change} />;
 }
 
 export default function ContestDetail() {

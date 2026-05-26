@@ -81,6 +81,8 @@
   --role-bowl: oklch(0.55 0.15 150);
   --role-ar: oklch(0.62 0.22 35);
   --role-wk: oklch(0.65 0.18 280);
+
+  --live-green: oklch(0.65 0.22 140);
 }
 
 .dark {
@@ -142,6 +144,8 @@
 
   --tracking-normal: -0.015em;
   --spacing: 0.25rem;
+
+  --live-green: oklch(0.65 0.22 140);
 }
 
 body {
@@ -340,4 +344,172 @@ body {
 
 .shadow-glow-orange {
   box-shadow: 0 0 20px oklch(0.62 0.22 35 / 0.4);
+}
+@keyframes live-indicator-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 oklch(0.65 0.2 25 / 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 12px oklch(0.65 0.2 25 / 0);
+  }
+}
+
+@keyframes score-flash-green {
+  0% {
+    background-color: oklch(0.65 0.22 140 / 0.3);
+  }
+  50% {
+    background-color: oklch(0.65 0.22 140 / 0.6);
+  }
+  100% {
+    background-color: oklch(0.65 0.22 140 / 0);
+  }
+}
+
+@keyframes score-flash-red {
+  0% {
+    background-color: oklch(0.65 0.2 25 / 0.3);
+  }
+  50% {
+    background-color: oklch(0.65 0.2 25 / 0.6);
+  }
+  100% {
+    background-color: oklch(0.65 0.2 25 / 0);
+  }
+}
+
+@keyframes wicket-spin {
+  0% {
+    transform: rotateZ(0deg) rotateX(0deg);
+    opacity: 1;
+  }
+  70% {
+    transform: rotateZ(720deg) rotateX(360deg);
+    opacity: 1;
+  }
+  100% {
+    transform: rotateZ(720deg) rotateX(360deg);
+    opacity: 0;
+  }
+}
+
+@keyframes ball-in-slide {
+  0% {
+    transform: translateY(100%) translateX(20px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0) translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes ball-out-fade {
+  0% {
+    transform: translateY(0) translateX(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100%) translateX(-20px);
+    opacity: 0;
+  }
+}
+
+@keyframes milestone-highlight {
+  0% {
+    box-shadow: 0 0 0 0 oklch(0.62 0.22 35 / 0.5);
+  }
+  50% {
+    box-shadow: 0 0 0 20px oklch(0.62 0.22 35 / 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 oklch(0.62 0.22 35 / 0);
+  }
+}
+
+@keyframes player-glow-border {
+  0% {
+    box-shadow: inset 0 0 0 2px oklch(0.62 0.22 35 / 0), 0 0 0 0
+      oklch(0.62 0.22 35 / 0.4);
+  }
+  50% {
+    box-shadow: inset 0 0 0 2px oklch(0.62 0.22 35 / 1), 0 0 24px 6px
+      oklch(0.62 0.22 35 / 0.4);
+  }
+  100% {
+    box-shadow: inset 0 0 0 2px oklch(0.62 0.22 35 / 0), 0 0 0 0
+      oklch(0.62 0.22 35 / 0);
+  }
+}
+
+@keyframes rank-change-up {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+}
+
+@keyframes rank-change-down {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+}
+
+@layer utilities {
+  .live-indicator-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: oklch(0.65 0.2 25);
+    animation: live-indicator-pulse 1.5s ease-out infinite;
+  }
+
+  .score-flash-boundary {
+    animation: score-flash-green 0.6s ease-out forwards;
+  }
+
+  .score-flash-wicket {
+    animation: score-flash-red 0.8s ease-out forwards;
+  }
+
+  .wicket-animation {
+    animation: wicket-spin 1.2s cubic-bezier(0.6, 0.04, 0.98, 0.34) forwards;
+  }
+
+  .ball-card-in {
+    animation: ball-in-slide 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+
+  .ball-card-out {
+    animation: ball-out-fade 0.4s ease-in forwards;
+  }
+
+  .milestone-pulse {
+    animation: milestone-highlight 0.8s ease-out forwards;
+  }
+
+  .player-card-selected {
+    animation: player-glow-border 1.2s ease-in-out infinite;
+  }
+
+  .rank-up-indicator {
+    animation: rank-change-up 0.8s ease-out forwards;
+    color: oklch(0.65 0.22 140);
+  }
+
+  .rank-down-indicator {
+    animation: rank-change-down 0.8s ease-out forwards;
+    color: oklch(0.65 0.2 25);
+  }
 }

@@ -10,6 +10,18 @@ import type { ActorMethod } from '@icp-sdk/core/agent';
 import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
+export interface BallEvent {
+  'ball' : string,
+  'over' : string,
+  'runs' : bigint,
+  'batter' : string,
+  'description' : string,
+  'bowler' : string,
+  'isWicket' : boolean,
+  'timestamp' : bigint,
+  'isSix' : boolean,
+  'isBoundary' : boolean,
+}
 export interface Contest {
   'id' : bigint,
   'contestType' : ContestType,
@@ -64,6 +76,9 @@ export interface Match {
   'scoreB' : [] | [string],
   'lastUpdated' : bigint,
   'sport' : Sport,
+  'ballHistory' : Array<BallEvent>,
+  'currentOver' : [] | [string],
+  'liveStatus' : [] | [string],
 }
 export type MatchStatus = { 'Live' : null } |
   { 'Cancelled' : null } |
@@ -71,6 +86,7 @@ export type MatchStatus = { 'Live' : null } |
   { 'Upcoming' : null };
 export interface Player {
   'id' : bigint,
+  'country' : [] | [string],
   'name' : string,
   'role' : PlayerRole,
   'team' : string,
@@ -78,6 +94,7 @@ export interface Player {
   'credit' : number,
   'matchId' : bigint,
   'points' : number,
+  'avatar' : [] | [string],
 }
 export type PlayerRole = { 'Defender2' : null } |
   { 'Goalkeeper' : null } |
@@ -149,6 +166,8 @@ export interface _SERVICE {
     [bigint, string, Array<bigint>, bigint, bigint],
     FantasyTeam
   >,
+  'getApiKey' : ActorMethod<[], [] | [string]>,
+  'getBallHistory' : ActorMethod<[bigint], Array<BallEvent>>,
   'getContest' : ActorMethod<[bigint], [] | [Contest]>,
   'getContestHistory' : ActorMethod<[], Array<ContestEntry>>,
   'getContests' : ActorMethod<[bigint], Array<Contest>>,
@@ -164,6 +183,7 @@ export interface _SERVICE {
   'isStripeConfigured' : ActorMethod<[], boolean>,
   'joinContest' : ActorMethod<[bigint, bigint], ContestEntry>,
   'refreshLiveScores' : ActorMethod<[], undefined>,
+  'setApiKey' : ActorMethod<[string], undefined>,
   'setStripeConfiguration' : ActorMethod<[StripeConfiguration], undefined>,
   'setUserProfile' : ActorMethod<[string, [] | [string]], UserProfile>,
   'transform' : ActorMethod<[TransformationInput], TransformationOutput>,

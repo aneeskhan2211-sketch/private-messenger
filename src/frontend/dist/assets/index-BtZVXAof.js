@@ -33045,22 +33045,11 @@ const createLucideIcon = (iconName, iconNode) => {
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$w = [
+const __iconNode$v = [
   ["path", { d: "M17 7 7 17", key: "15tmo1" }],
   ["path", { d: "M17 17H7V7", key: "1org7z" }]
 ];
-const ArrowDownLeft = createLucideIcon("arrow-down-left", __iconNode$w);
-/**
- * @license lucide-react v0.511.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$v = [
-  ["path", { d: "m12 19-7-7 7-7", key: "1l729n" }],
-  ["path", { d: "M19 12H5", key: "x3x0zl" }]
-];
-const ArrowLeft = createLucideIcon("arrow-left", __iconNode$v);
+const ArrowDownLeft = createLucideIcon("arrow-down-left", __iconNode$v);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
@@ -33068,10 +33057,10 @@ const ArrowLeft = createLucideIcon("arrow-left", __iconNode$v);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$u = [
-  ["path", { d: "M5 12h14", key: "1ays0h" }],
-  ["path", { d: "m12 5 7 7-7 7", key: "xquz4c" }]
+  ["path", { d: "m12 19-7-7 7-7", key: "1l729n" }],
+  ["path", { d: "M19 12H5", key: "x3x0zl" }]
 ];
-const ArrowRight = createLucideIcon("arrow-right", __iconNode$u);
+const ArrowLeft = createLucideIcon("arrow-left", __iconNode$u);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
@@ -33079,10 +33068,10 @@ const ArrowRight = createLucideIcon("arrow-right", __iconNode$u);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$t = [
-  ["path", { d: "M7 7h10v10", key: "1tivn9" }],
-  ["path", { d: "M7 17 17 7", key: "1vkiza" }]
+  ["path", { d: "M5 12h14", key: "1ays0h" }],
+  ["path", { d: "m12 5 7 7-7 7", key: "xquz4c" }]
 ];
-const ArrowUpRight = createLucideIcon("arrow-up-right", __iconNode$t);
+const ArrowRight = createLucideIcon("arrow-right", __iconNode$t);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
@@ -33090,6 +33079,17 @@ const ArrowUpRight = createLucideIcon("arrow-up-right", __iconNode$t);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$s = [
+  ["path", { d: "M7 7h10v10", key: "1tivn9" }],
+  ["path", { d: "M7 17 17 7", key: "1vkiza" }]
+];
+const ArrowUpRight = createLucideIcon("arrow-up-right", __iconNode$s);
+/**
+ * @license lucide-react v0.511.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$r = [
   [
     "path",
     {
@@ -33099,66 +33099,55 @@ const __iconNode$s = [
   ],
   ["circle", { cx: "12", cy: "8", r: "6", key: "1vp47v" }]
 ];
-const Award = createLucideIcon("award", __iconNode$s);
+const Award = createLucideIcon("award", __iconNode$r);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$r = [
+const __iconNode$q = [
   ["path", { d: "M8 2v4", key: "1cmpym" }],
   ["path", { d: "M16 2v4", key: "4m81vk" }],
   ["rect", { width: "18", height: "18", x: "3", y: "4", rx: "2", key: "1hopcy" }],
   ["path", { d: "M3 10h18", key: "8toen8" }]
 ];
-const Calendar = createLucideIcon("calendar", __iconNode$r);
+const Calendar = createLucideIcon("calendar", __iconNode$q);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$q = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
-const Check = createLucideIcon("check", __iconNode$q);
+const __iconNode$p = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
+const Check = createLucideIcon("check", __iconNode$p);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$p = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
-const ChevronRight = createLucideIcon("chevron-right", __iconNode$p);
+const __iconNode$o = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
+const ChevronRight = createLucideIcon("chevron-right", __iconNode$o);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$o = [
+const __iconNode$n = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["circle", { cx: "12", cy: "12", r: "1", key: "41hilf" }]
 ];
-const CircleDot = createLucideIcon("circle-dot", __iconNode$o);
+const CircleDot = createLucideIcon("circle-dot", __iconNode$n);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$n = [["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }]];
-const Circle = createLucideIcon("circle", __iconNode$n);
-/**
- * @license lucide-react v0.511.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$m = [
-  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
-  ["polyline", { points: "12 6 12 12 16 14", key: "68esgv" }]
-];
-const Clock = createLucideIcon("clock", __iconNode$m);
+const __iconNode$m = [["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }]];
+const Circle = createLucideIcon("circle", __iconNode$m);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
@@ -33166,10 +33155,10 @@ const Clock = createLucideIcon("clock", __iconNode$m);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$l = [
-  ["rect", { width: "20", height: "14", x: "2", y: "5", rx: "2", key: "ynyp8z" }],
-  ["line", { x1: "2", x2: "22", y1: "10", y2: "10", key: "1b3vmo" }]
+  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
+  ["polyline", { points: "12 6 12 12 16 14", key: "68esgv" }]
 ];
-const CreditCard = createLucideIcon("credit-card", __iconNode$l);
+const Clock = createLucideIcon("clock", __iconNode$l);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
@@ -33177,16 +33166,10 @@ const CreditCard = createLucideIcon("credit-card", __iconNode$l);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$k = [
-  [
-    "path",
-    {
-      d: "M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z",
-      key: "1vdc57"
-    }
-  ],
-  ["path", { d: "M5 21h14", key: "11awu3" }]
+  ["rect", { width: "20", height: "14", x: "2", y: "5", rx: "2", key: "ynyp8z" }],
+  ["line", { x1: "2", x2: "22", y1: "10", y2: "10", key: "1b3vmo" }]
 ];
-const Crown = createLucideIcon("crown", __iconNode$k);
+const CreditCard = createLucideIcon("credit-card", __iconNode$k);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
@@ -33197,12 +33180,13 @@ const __iconNode$j = [
   [
     "path",
     {
-      d: "M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z",
-      key: "96xj49"
+      d: "M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z",
+      key: "1vdc57"
     }
-  ]
+  ],
+  ["path", { d: "M5 21h14", key: "11awu3" }]
 ];
-const Flame = createLucideIcon("flame", __iconNode$j);
+const Crown = createLucideIcon("crown", __iconNode$j);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
@@ -33210,6 +33194,22 @@ const Flame = createLucideIcon("flame", __iconNode$j);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$i = [
+  [
+    "path",
+    {
+      d: "M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z",
+      key: "96xj49"
+    }
+  ]
+];
+const Flame = createLucideIcon("flame", __iconNode$i);
+/**
+ * @license lucide-react v0.511.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$h = [
   ["path", { d: "M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8", key: "5wwlr5" }],
   [
     "path",
@@ -33219,27 +33219,15 @@ const __iconNode$i = [
     }
   ]
 ];
-const House = createLucideIcon("house", __iconNode$i);
+const House = createLucideIcon("house", __iconNode$h);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$h = [["path", { d: "M21 12a9 9 0 1 1-6.219-8.56", key: "13zald" }]];
-const LoaderCircle = createLucideIcon("loader-circle", __iconNode$h);
-/**
- * @license lucide-react v0.511.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$g = [
-  ["path", { d: "m16 17 5-5-5-5", key: "1bji2h" }],
-  ["path", { d: "M21 12H9", key: "dn1m92" }],
-  ["path", { d: "M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4", key: "1uf3rs" }]
-];
-const LogOut = createLucideIcon("log-out", __iconNode$g);
+const __iconNode$g = [["path", { d: "M21 12a9 9 0 1 1-6.219-8.56", key: "13zald" }]];
+const LoaderCircle = createLucideIcon("loader-circle", __iconNode$g);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
@@ -33247,6 +33235,18 @@ const LogOut = createLucideIcon("log-out", __iconNode$g);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$f = [
+  ["path", { d: "m16 17 5-5-5-5", key: "1bji2h" }],
+  ["path", { d: "M21 12H9", key: "dn1m92" }],
+  ["path", { d: "M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4", key: "1uf3rs" }]
+];
+const LogOut = createLucideIcon("log-out", __iconNode$f);
+/**
+ * @license lucide-react v0.511.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$e = [
   [
     "path",
     {
@@ -33256,14 +33256,14 @@ const __iconNode$f = [
   ],
   ["circle", { cx: "12", cy: "10", r: "3", key: "ilqhr7" }]
 ];
-const MapPin = createLucideIcon("map-pin", __iconNode$f);
+const MapPin = createLucideIcon("map-pin", __iconNode$e);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$e = [
+const __iconNode$d = [
   [
     "path",
     {
@@ -33277,22 +33277,22 @@ const __iconNode$e = [
   ["circle", { cx: "12", cy: "17", r: "5", key: "qbz8iq" }],
   ["path", { d: "M12 18v-2h-.5", key: "fawc4q" }]
 ];
-const Medal = createLucideIcon("medal", __iconNode$e);
+const Medal = createLucideIcon("medal", __iconNode$d);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$d = [["path", { d: "M5 12h14", key: "1ays0h" }]];
-const Minus = createLucideIcon("minus", __iconNode$d);
+const __iconNode$c = [["path", { d: "M5 12h14", key: "1ays0h" }]];
+const Minus = createLucideIcon("minus", __iconNode$c);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$c = [
+const __iconNode$b = [
   [
     "path",
     {
@@ -33302,18 +33302,7 @@ const __iconNode$c = [
   ],
   ["path", { d: "m15 5 4 4", key: "1mk7zo" }]
 ];
-const Pencil = createLucideIcon("pencil", __iconNode$c);
-/**
- * @license lucide-react v0.511.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$b = [
-  ["path", { d: "M5 12h14", key: "1ays0h" }],
-  ["path", { d: "M12 5v14", key: "s699le" }]
-];
-const Plus = createLucideIcon("plus", __iconNode$b);
+const Pencil = createLucideIcon("pencil", __iconNode$b);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
@@ -33321,6 +33310,17 @@ const Plus = createLucideIcon("plus", __iconNode$b);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$a = [
+  ["path", { d: "M5 12h14", key: "1ays0h" }],
+  ["path", { d: "M12 5v14", key: "s699le" }]
+];
+const Plus = createLucideIcon("plus", __iconNode$a);
+/**
+ * @license lucide-react v0.511.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$9 = [
   [
     "path",
     {
@@ -33329,14 +33329,14 @@ const __iconNode$a = [
     }
   ]
 ];
-const Star = createLucideIcon("star", __iconNode$a);
+const Star = createLucideIcon("star", __iconNode$9);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$9 = [
+const __iconNode$8 = [
   ["polyline", { points: "14.5 17.5 3 6 3 3 6 3 17.5 14.5", key: "1hfsw2" }],
   ["line", { x1: "13", x2: "19", y1: "19", y2: "13", key: "1vrmhu" }],
   ["line", { x1: "16", x2: "20", y1: "16", y2: "20", key: "1bron3" }],
@@ -33346,19 +33346,7 @@ const __iconNode$9 = [
   ["line", { x1: "7", x2: "4", y1: "17", y2: "20", key: "pidxm4" }],
   ["line", { x1: "3", x2: "5", y1: "19", y2: "21", key: "1pehsh" }]
 ];
-const Swords = createLucideIcon("swords", __iconNode$9);
-/**
- * @license lucide-react v0.511.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$8 = [
-  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
-  ["circle", { cx: "12", cy: "12", r: "6", key: "1vlfrh" }],
-  ["circle", { cx: "12", cy: "12", r: "2", key: "1c9p78" }]
-];
-const Target = createLucideIcon("target", __iconNode$8);
+const Swords = createLucideIcon("swords", __iconNode$8);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
@@ -33366,10 +33354,11 @@ const Target = createLucideIcon("target", __iconNode$8);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$7 = [
-  ["path", { d: "M16 17h6v-6", key: "t6n2it" }],
-  ["path", { d: "m22 17-8.5-8.5-5 5L2 7", key: "x473p" }]
+  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
+  ["circle", { cx: "12", cy: "12", r: "6", key: "1vlfrh" }],
+  ["circle", { cx: "12", cy: "12", r: "2", key: "1c9p78" }]
 ];
-const TrendingDown = createLucideIcon("trending-down", __iconNode$7);
+const Target = createLucideIcon("target", __iconNode$7);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
@@ -36472,6 +36461,18 @@ const FantasyTeam = Record({
   "totalPoints": Float64,
   "captainId": Nat
 });
+const BallEvent = Record({
+  "ball": Text,
+  "over": Text,
+  "runs": Nat,
+  "batter": Text,
+  "description": Text,
+  "bowler": Text,
+  "isWicket": Bool,
+  "timestamp": Int,
+  "isSix": Bool,
+  "isBoundary": Bool
+});
 const ContestType$1 = Variant({
   "Practice": Null,
   "Head2Head": Null,
@@ -36532,7 +36533,10 @@ const Match = Record({
   "scoreA": Opt(Text),
   "scoreB": Opt(Text),
   "lastUpdated": Int,
-  "sport": Sport$1
+  "sport": Sport$1,
+  "ballHistory": Vec(BallEvent),
+  "currentOver": Opt(Text),
+  "liveStatus": Opt(Text)
 });
 const PlayerRole$1 = Variant({
   "Defender2": Null,
@@ -36549,13 +36553,15 @@ const PlayerRole$1 = Variant({
 });
 const Player = Record({
   "id": Nat,
+  "country": Opt(Text),
   "name": Text,
   "role": PlayerRole$1,
   "team": Text,
   "selPct": Float64,
   "credit": Float64,
   "matchId": Nat,
-  "points": Float64
+  "points": Float64,
+  "avatar": Opt(Text)
 });
 const StripeSessionStatus = Variant({
   "completed": Record({
@@ -36621,6 +36627,8 @@ Service({
     [FantasyTeam],
     []
   ),
+  "getApiKey": Func([], [Opt(Text)], ["query"]),
+  "getBallHistory": Func([Nat], [Vec(BallEvent)], ["query"]),
   "getContest": Func([Nat], [Opt(Contest)], ["query"]),
   "getContestHistory": Func([], [Vec(ContestEntry)], ["query"]),
   "getContests": Func([Nat], [Vec(Contest)], ["query"]),
@@ -36640,6 +36648,7 @@ Service({
   "isStripeConfigured": Func([], [Bool], ["query"]),
   "joinContest": Func([Nat, Nat], [ContestEntry], []),
   "refreshLiveScores": Func([], [], []),
+  "setApiKey": Func([Text], [], []),
   "setStripeConfiguration": Func([StripeConfiguration], [], []),
   "setUserProfile": Func([Text, Opt(Text)], [UserProfile], []),
   "transform": Func(
@@ -36660,6 +36669,18 @@ const idlFactory = ({ IDL: IDL2 }) => {
     "matchId": IDL2.Nat,
     "totalPoints": IDL2.Float64,
     "captainId": IDL2.Nat
+  });
+  const BallEvent2 = IDL2.Record({
+    "ball": IDL2.Text,
+    "over": IDL2.Text,
+    "runs": IDL2.Nat,
+    "batter": IDL2.Text,
+    "description": IDL2.Text,
+    "bowler": IDL2.Text,
+    "isWicket": IDL2.Bool,
+    "timestamp": IDL2.Int,
+    "isSix": IDL2.Bool,
+    "isBoundary": IDL2.Bool
   });
   const ContestType2 = IDL2.Variant({
     "Practice": IDL2.Null,
@@ -36721,7 +36742,10 @@ const idlFactory = ({ IDL: IDL2 }) => {
     "scoreA": IDL2.Opt(IDL2.Text),
     "scoreB": IDL2.Opt(IDL2.Text),
     "lastUpdated": IDL2.Int,
-    "sport": Sport2
+    "sport": Sport2,
+    "ballHistory": IDL2.Vec(BallEvent2),
+    "currentOver": IDL2.Opt(IDL2.Text),
+    "liveStatus": IDL2.Opt(IDL2.Text)
   });
   const PlayerRole2 = IDL2.Variant({
     "Defender2": IDL2.Null,
@@ -36738,13 +36762,15 @@ const idlFactory = ({ IDL: IDL2 }) => {
   });
   const Player2 = IDL2.Record({
     "id": IDL2.Nat,
+    "country": IDL2.Opt(IDL2.Text),
     "name": IDL2.Text,
     "role": PlayerRole2,
     "team": IDL2.Text,
     "selPct": IDL2.Float64,
     "credit": IDL2.Float64,
     "matchId": IDL2.Nat,
-    "points": IDL2.Float64
+    "points": IDL2.Float64,
+    "avatar": IDL2.Opt(IDL2.Text)
   });
   const StripeSessionStatus2 = IDL2.Variant({
     "completed": IDL2.Record({
@@ -36807,6 +36833,8 @@ const idlFactory = ({ IDL: IDL2 }) => {
       [FantasyTeam2],
       []
     ),
+    "getApiKey": IDL2.Func([], [IDL2.Opt(IDL2.Text)], ["query"]),
+    "getBallHistory": IDL2.Func([IDL2.Nat], [IDL2.Vec(BallEvent2)], ["query"]),
     "getContest": IDL2.Func([IDL2.Nat], [IDL2.Opt(Contest2)], ["query"]),
     "getContestHistory": IDL2.Func([], [IDL2.Vec(ContestEntry2)], ["query"]),
     "getContests": IDL2.Func([IDL2.Nat], [IDL2.Vec(Contest2)], ["query"]),
@@ -36826,6 +36854,7 @@ const idlFactory = ({ IDL: IDL2 }) => {
     "isStripeConfigured": IDL2.Func([], [IDL2.Bool], ["query"]),
     "joinContest": IDL2.Func([IDL2.Nat, IDL2.Nat], [ContestEntry2], []),
     "refreshLiveScores": IDL2.Func([], [], []),
+    "setApiKey": IDL2.Func([IDL2.Text], [], []),
     "setStripeConfiguration": IDL2.Func([StripeConfiguration2], [], []),
     "setUserProfile": IDL2.Func(
       [IDL2.Text, IDL2.Opt(IDL2.Text)],
@@ -36956,46 +36985,74 @@ class Backend {
       return result;
     }
   }
-  async getContest(arg0) {
+  async getApiKey() {
     if (this.processError) {
       try {
-        const result = await this.actor.getContest(arg0);
+        const result = await this.actor.getApiKey();
         return from_candid_opt_n1(this._uploadFile, this._downloadFile, result);
       } catch (e) {
         this.processError(e);
         throw new Error("unreachable");
       }
     } else {
-      const result = await this.actor.getContest(arg0);
+      const result = await this.actor.getApiKey();
       return from_candid_opt_n1(this._uploadFile, this._downloadFile, result);
+    }
+  }
+  async getBallHistory(arg0) {
+    if (this.processError) {
+      try {
+        const result = await this.actor.getBallHistory(arg0);
+        return result;
+      } catch (e) {
+        this.processError(e);
+        throw new Error("unreachable");
+      }
+    } else {
+      const result = await this.actor.getBallHistory(arg0);
+      return result;
+    }
+  }
+  async getContest(arg0) {
+    if (this.processError) {
+      try {
+        const result = await this.actor.getContest(arg0);
+        return from_candid_opt_n2(this._uploadFile, this._downloadFile, result);
+      } catch (e) {
+        this.processError(e);
+        throw new Error("unreachable");
+      }
+    } else {
+      const result = await this.actor.getContest(arg0);
+      return from_candid_opt_n2(this._uploadFile, this._downloadFile, result);
     }
   }
   async getContestHistory() {
     if (this.processError) {
       try {
         const result = await this.actor.getContestHistory();
-        return from_candid_vec_n6(this._uploadFile, this._downloadFile, result);
+        return from_candid_vec_n7(this._uploadFile, this._downloadFile, result);
       } catch (e) {
         this.processError(e);
         throw new Error("unreachable");
       }
     } else {
       const result = await this.actor.getContestHistory();
-      return from_candid_vec_n6(this._uploadFile, this._downloadFile, result);
+      return from_candid_vec_n7(this._uploadFile, this._downloadFile, result);
     }
   }
   async getContests(arg0) {
     if (this.processError) {
       try {
         const result = await this.actor.getContests(arg0);
-        return from_candid_vec_n10(this._uploadFile, this._downloadFile, result);
+        return from_candid_vec_n11(this._uploadFile, this._downloadFile, result);
       } catch (e) {
         this.processError(e);
         throw new Error("unreachable");
       }
     } else {
       const result = await this.actor.getContests(arg0);
-      return from_candid_vec_n10(this._uploadFile, this._downloadFile, result);
+      return from_candid_vec_n11(this._uploadFile, this._downloadFile, result);
     }
   }
   async getLeaderboard(arg0) {
@@ -37016,14 +37073,14 @@ class Backend {
     if (this.processError) {
       try {
         const result = await this.actor.getMatch(arg0);
-        return from_candid_opt_n11(this._uploadFile, this._downloadFile, result);
+        return from_candid_opt_n12(this._uploadFile, this._downloadFile, result);
       } catch (e) {
         this.processError(e);
         throw new Error("unreachable");
       }
     } else {
       const result = await this.actor.getMatch(arg0);
-      return from_candid_opt_n11(this._uploadFile, this._downloadFile, result);
+      return from_candid_opt_n12(this._uploadFile, this._downloadFile, result);
     }
   }
   async getMatches() {
@@ -37142,14 +37199,14 @@ class Backend {
     if (this.processError) {
       try {
         const result = await this.actor.joinContest(arg0, arg1);
-        return from_candid_ContestEntry_n7(this._uploadFile, this._downloadFile, result);
+        return from_candid_ContestEntry_n8(this._uploadFile, this._downloadFile, result);
       } catch (e) {
         this.processError(e);
         throw new Error("unreachable");
       }
     } else {
       const result = await this.actor.joinContest(arg0, arg1);
-      return from_candid_ContestEntry_n7(this._uploadFile, this._downloadFile, result);
+      return from_candid_ContestEntry_n8(this._uploadFile, this._downloadFile, result);
     }
   }
   async refreshLiveScores() {
@@ -37163,6 +37220,20 @@ class Backend {
       }
     } else {
       const result = await this.actor.refreshLiveScores();
+      return result;
+    }
+  }
+  async setApiKey(arg0) {
+    if (this.processError) {
+      try {
+        const result = await this.actor.setApiKey(arg0);
+        return result;
+      } catch (e) {
+        this.processError(e);
+        throw new Error("unreachable");
+      }
+    } else {
+      const result = await this.actor.setApiKey(arg0);
       return result;
     }
   }
@@ -37223,20 +37294,20 @@ class Backend {
     }
   }
 }
-function from_candid_ContestEntry_n7(_uploadFile, _downloadFile, value) {
-  return from_candid_record_n8(_uploadFile, _downloadFile, value);
+function from_candid_ContestEntry_n8(_uploadFile, _downloadFile, value) {
+  return from_candid_record_n9(_uploadFile, _downloadFile, value);
 }
-function from_candid_ContestType_n4(_uploadFile, _downloadFile, value) {
-  return from_candid_variant_n5(_uploadFile, _downloadFile, value);
+function from_candid_ContestType_n5(_uploadFile, _downloadFile, value) {
+  return from_candid_variant_n6(_uploadFile, _downloadFile, value);
 }
-function from_candid_Contest_n2(_uploadFile, _downloadFile, value) {
-  return from_candid_record_n3(_uploadFile, _downloadFile, value);
+function from_candid_Contest_n3(_uploadFile, _downloadFile, value) {
+  return from_candid_record_n4(_uploadFile, _downloadFile, value);
 }
-function from_candid_MatchStatus_n14(_uploadFile, _downloadFile, value) {
-  return from_candid_variant_n15(_uploadFile, _downloadFile, value);
+function from_candid_MatchStatus_n15(_uploadFile, _downloadFile, value) {
+  return from_candid_variant_n16(_uploadFile, _downloadFile, value);
 }
-function from_candid_Match_n12(_uploadFile, _downloadFile, value) {
-  return from_candid_record_n13(_uploadFile, _downloadFile, value);
+function from_candid_Match_n13(_uploadFile, _downloadFile, value) {
+  return from_candid_record_n14(_uploadFile, _downloadFile, value);
 }
 function from_candid_PlayerRole_n25(_uploadFile, _downloadFile, value) {
   return from_candid_variant_n26(_uploadFile, _downloadFile, value);
@@ -37250,8 +37321,8 @@ function from_candid_Sport_n19(_uploadFile, _downloadFile, value) {
 function from_candid_StripeSessionStatus_n27(_uploadFile, _downloadFile, value) {
   return from_candid_variant_n28(_uploadFile, _downloadFile, value);
 }
-function from_candid_Team_n16(_uploadFile, _downloadFile, value) {
-  return from_candid_record_n17(_uploadFile, _downloadFile, value);
+function from_candid_Team_n17(_uploadFile, _downloadFile, value) {
+  return from_candid_record_n18(_uploadFile, _downloadFile, value);
 }
 function from_candid_TransactionKind_n33(_uploadFile, _downloadFile, value) {
   return from_candid_variant_n34(_uploadFile, _downloadFile, value);
@@ -37263,71 +37334,62 @@ function from_candid_UserProfile_n36(_uploadFile, _downloadFile, value) {
   return from_candid_record_n37(_uploadFile, _downloadFile, value);
 }
 function from_candid_opt_n1(_uploadFile, _downloadFile, value) {
-  return value.length === 0 ? null : from_candid_Contest_n2(_uploadFile, _downloadFile, value[0]);
-}
-function from_candid_opt_n11(_uploadFile, _downloadFile, value) {
-  return value.length === 0 ? null : from_candid_Match_n12(_uploadFile, _downloadFile, value[0]);
-}
-function from_candid_opt_n18(_uploadFile, _downloadFile, value) {
   return value.length === 0 ? null : value[0];
+}
+function from_candid_opt_n10(_uploadFile, _downloadFile, value) {
+  return value.length === 0 ? null : value[0];
+}
+function from_candid_opt_n12(_uploadFile, _downloadFile, value) {
+  return value.length === 0 ? null : from_candid_Match_n13(_uploadFile, _downloadFile, value[0]);
+}
+function from_candid_opt_n2(_uploadFile, _downloadFile, value) {
+  return value.length === 0 ? null : from_candid_Contest_n3(_uploadFile, _downloadFile, value[0]);
 }
 function from_candid_opt_n35(_uploadFile, _downloadFile, value) {
   return value.length === 0 ? null : from_candid_UserProfile_n36(_uploadFile, _downloadFile, value[0]);
 }
-function from_candid_opt_n9(_uploadFile, _downloadFile, value) {
-  return value.length === 0 ? null : value[0];
-}
-function from_candid_record_n13(_uploadFile, _downloadFile, value) {
+function from_candid_record_n14(_uploadFile, _downloadFile, value) {
   return {
     id: value.id,
     startTime: value.startTime,
-    status: from_candid_MatchStatus_n14(_uploadFile, _downloadFile, value.status),
-    teamA: from_candid_Team_n16(_uploadFile, _downloadFile, value.teamA),
-    teamB: from_candid_Team_n16(_uploadFile, _downloadFile, value.teamB),
+    status: from_candid_MatchStatus_n15(_uploadFile, _downloadFile, value.status),
+    teamA: from_candid_Team_n17(_uploadFile, _downloadFile, value.teamA),
+    teamB: from_candid_Team_n17(_uploadFile, _downloadFile, value.teamB),
     venue: value.venue,
-    scoreA: record_opt_to_undefined(from_candid_opt_n18(_uploadFile, _downloadFile, value.scoreA)),
-    scoreB: record_opt_to_undefined(from_candid_opt_n18(_uploadFile, _downloadFile, value.scoreB)),
+    scoreA: record_opt_to_undefined(from_candid_opt_n1(_uploadFile, _downloadFile, value.scoreA)),
+    scoreB: record_opt_to_undefined(from_candid_opt_n1(_uploadFile, _downloadFile, value.scoreB)),
     lastUpdated: value.lastUpdated,
-    sport: from_candid_Sport_n19(_uploadFile, _downloadFile, value.sport)
+    sport: from_candid_Sport_n19(_uploadFile, _downloadFile, value.sport),
+    ballHistory: value.ballHistory,
+    currentOver: record_opt_to_undefined(from_candid_opt_n1(_uploadFile, _downloadFile, value.currentOver)),
+    liveStatus: record_opt_to_undefined(from_candid_opt_n1(_uploadFile, _downloadFile, value.liveStatus))
   };
 }
-function from_candid_record_n17(_uploadFile, _downloadFile, value) {
+function from_candid_record_n18(_uploadFile, _downloadFile, value) {
   return {
     code: value.code,
-    logo: record_opt_to_undefined(from_candid_opt_n18(_uploadFile, _downloadFile, value.logo)),
+    logo: record_opt_to_undefined(from_candid_opt_n1(_uploadFile, _downloadFile, value.logo)),
     name: value.name
   };
 }
 function from_candid_record_n24(_uploadFile, _downloadFile, value) {
   return {
     id: value.id,
+    country: record_opt_to_undefined(from_candid_opt_n1(_uploadFile, _downloadFile, value.country)),
     name: value.name,
     role: from_candid_PlayerRole_n25(_uploadFile, _downloadFile, value.role),
     team: value.team,
     selPct: value.selPct,
     credit: value.credit,
     matchId: value.matchId,
-    points: value.points
+    points: value.points,
+    avatar: record_opt_to_undefined(from_candid_opt_n1(_uploadFile, _downloadFile, value.avatar))
   };
 }
 function from_candid_record_n29(_uploadFile, _downloadFile, value) {
   return {
-    userPrincipal: record_opt_to_undefined(from_candid_opt_n18(_uploadFile, _downloadFile, value.userPrincipal)),
+    userPrincipal: record_opt_to_undefined(from_candid_opt_n1(_uploadFile, _downloadFile, value.userPrincipal)),
     response: value.response
-  };
-}
-function from_candid_record_n3(_uploadFile, _downloadFile, value) {
-  return {
-    id: value.id,
-    contestType: from_candid_ContestType_n4(_uploadFile, _downloadFile, value.contestType),
-    name: value.name,
-    createdAt: value.createdAt,
-    prizeBreakdown: value.prizeBreakdown,
-    matchId: value.matchId,
-    entryFee: value.entryFee,
-    filledSpots: value.filledSpots,
-    maxEntries: value.maxEntries,
-    prizePool: value.prizePool
   };
 }
 function from_candid_record_n32(_uploadFile, _downloadFile, value) {
@@ -37345,22 +37407,36 @@ function from_candid_record_n37(_uploadFile, _downloadFile, value) {
     principal: value.principal,
     username: value.username,
     joinedAt: value.joinedAt,
-    phone: record_opt_to_undefined(from_candid_opt_n18(_uploadFile, _downloadFile, value.phone)),
+    phone: record_opt_to_undefined(from_candid_opt_n1(_uploadFile, _downloadFile, value.phone)),
     kycDone: value.kycDone
   };
 }
-function from_candid_record_n8(_uploadFile, _downloadFile, value) {
+function from_candid_record_n4(_uploadFile, _downloadFile, value) {
+  return {
+    id: value.id,
+    contestType: from_candid_ContestType_n5(_uploadFile, _downloadFile, value.contestType),
+    name: value.name,
+    createdAt: value.createdAt,
+    prizeBreakdown: value.prizeBreakdown,
+    matchId: value.matchId,
+    entryFee: value.entryFee,
+    filledSpots: value.filledSpots,
+    maxEntries: value.maxEntries,
+    prizePool: value.prizePool
+  };
+}
+function from_candid_record_n9(_uploadFile, _downloadFile, value) {
   return {
     contestId: value.contestId,
     owner: value.owner,
     joinedAt: value.joinedAt,
-    rank: record_opt_to_undefined(from_candid_opt_n9(_uploadFile, _downloadFile, value.rank)),
+    rank: record_opt_to_undefined(from_candid_opt_n10(_uploadFile, _downloadFile, value.rank)),
     prize: value.prize,
     teamId: value.teamId,
     points: value.points
   };
 }
-function from_candid_variant_n15(_uploadFile, _downloadFile, value) {
+function from_candid_variant_n16(_uploadFile, _downloadFile, value) {
   return "Live" in value ? "Live" : "Cancelled" in value ? "Cancelled" : "Completed" in value ? "Completed" : "Upcoming" in value ? "Upcoming" : value;
 }
 function from_candid_variant_n20(_uploadFile, _downloadFile, value) {
@@ -37381,14 +37457,14 @@ function from_candid_variant_n28(_uploadFile, _downloadFile, value) {
 function from_candid_variant_n34(_uploadFile, _downloadFile, value) {
   return "Deposit" in value ? "Deposit" : "Refund" in value ? "Refund" : "Withdrawal" in value ? "Withdrawal" : "PrizeCredit" in value ? "PrizeCredit" : "ContestEntry" in value ? "ContestEntry" : value;
 }
-function from_candid_variant_n5(_uploadFile, _downloadFile, value) {
+function from_candid_variant_n6(_uploadFile, _downloadFile, value) {
   return "Practice" in value ? "Practice" : "Head2Head" in value ? "Head2Head" : "MegaLeague" in value ? "MegaLeague" : "MiniLeague" in value ? "MiniLeague" : value;
 }
-function from_candid_vec_n10(_uploadFile, _downloadFile, value) {
-  return value.map((x2) => from_candid_Contest_n2(_uploadFile, _downloadFile, x2));
+function from_candid_vec_n11(_uploadFile, _downloadFile, value) {
+  return value.map((x2) => from_candid_Contest_n3(_uploadFile, _downloadFile, x2));
 }
 function from_candid_vec_n21(_uploadFile, _downloadFile, value) {
-  return value.map((x2) => from_candid_Match_n12(_uploadFile, _downloadFile, x2));
+  return value.map((x2) => from_candid_Match_n13(_uploadFile, _downloadFile, x2));
 }
 function from_candid_vec_n22(_uploadFile, _downloadFile, value) {
   return value.map((x2) => from_candid_Player_n23(_uploadFile, _downloadFile, x2));
@@ -37396,8 +37472,8 @@ function from_candid_vec_n22(_uploadFile, _downloadFile, value) {
 function from_candid_vec_n30(_uploadFile, _downloadFile, value) {
   return value.map((x2) => from_candid_Transaction_n31(_uploadFile, _downloadFile, x2));
 }
-function from_candid_vec_n6(_uploadFile, _downloadFile, value) {
-  return value.map((x2) => from_candid_ContestEntry_n7(_uploadFile, _downloadFile, x2));
+function from_candid_vec_n7(_uploadFile, _downloadFile, value) {
+  return value.map((x2) => from_candid_ContestEntry_n8(_uploadFile, _downloadFile, x2));
 }
 function to_candid_opt_n38(_uploadFile, _downloadFile, value) {
   return value === null ? candid_none() : candid_some(value);
@@ -37541,7 +37617,19 @@ function useLeaderboard(contestId) {
       return actor.getLeaderboard(BigInt(contestId));
     },
     enabled: !!actor && !!contestId,
-    refetchInterval: 3e4
+    refetchInterval: 1e4
+  });
+}
+function useGetBallHistory(matchId) {
+  const { actor } = useActor();
+  return useQuery({
+    queryKey: ["ballHistory", matchId],
+    queryFn: async () => {
+      if (!actor) return [];
+      return actor.getBallHistory(BigInt(matchId));
+    },
+    enabled: !!actor,
+    refetchInterval: 1e4
   });
 }
 function useWalletBalance() {
@@ -47625,6 +47713,169 @@ function AccountPage() {
     )
   ] });
 }
+const LiveIndicatorDot = () => /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "relative flex h-3 w-3", children: [
+  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "animate-ping absolute inline-flex h-full w-full rounded-full bg-live opacity-75" }),
+  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "relative inline-flex rounded-full h-3 w-3 bg-live" })
+] });
+const BallIcon = ({
+  className = "w-4 h-4"
+}) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+  "svg",
+  {
+    className,
+    viewBox: "0 0 24 24",
+    fill: "none",
+    xmlns: "http://www.w3.org/2000/svg",
+    "aria-label": "Cricket ball icon",
+    role: "img",
+    children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "circle",
+        {
+          cx: "12",
+          cy: "12",
+          r: "10",
+          stroke: "currentColor",
+          strokeWidth: "2",
+          fill: "currentColor",
+          fillOpacity: "0.2"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "path",
+        {
+          d: "M12 2C6.48 2 2 6.48 2 12",
+          stroke: "currentColor",
+          strokeWidth: "2",
+          strokeLinecap: "round"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "path",
+        {
+          d: "M12 22C17.52 22 22 17.52 22 12",
+          stroke: "currentColor",
+          strokeWidth: "2",
+          strokeLinecap: "round"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "path",
+        {
+          d: "M2 12C2 17.52 6.48 22 12 22",
+          stroke: "currentColor",
+          strokeWidth: "2",
+          strokeLinecap: "round",
+          opacity: "0.5"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "path",
+        {
+          d: "M22 12C22 6.48 17.52 2 12 2",
+          stroke: "currentColor",
+          strokeWidth: "2",
+          strokeLinecap: "round",
+          opacity: "0.5"
+        }
+      )
+    ]
+  }
+);
+const WicketIcon = ({
+  className = "w-5 h-5"
+}) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+  "svg",
+  {
+    className,
+    viewBox: "0 0 24 24",
+    fill: "none",
+    xmlns: "http://www.w3.org/2000/svg",
+    "aria-label": "Wicket icon",
+    role: "img",
+    children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "8", y: "2", width: "2", height: "20", fill: "currentColor" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "14", y: "2", width: "2", height: "20", fill: "currentColor" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "6", y: "4", width: "12", height: "2", fill: "currentColor" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { x: "6", y: "18", width: "12", height: "2", fill: "currentColor" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "circle",
+        {
+          cx: "12",
+          cy: "12",
+          r: "3",
+          fill: "currentColor",
+          className: "animate-pulse"
+        }
+      )
+    ]
+  }
+);
+const BoundaryArrow = ({ className = "w-4 h-4", direction = "up" }) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+  "svg",
+  {
+    className: `${className} ${direction === "up" ? "text-boundary" : "text-destructive"}`,
+    viewBox: "0 0 24 24",
+    fill: "none",
+    xmlns: "http://www.w3.org/2000/svg",
+    "aria-label": "Boundary arrow icon",
+    role: "img",
+    children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "path",
+      {
+        d: direction === "up" ? "M12 4L12 20M12 4L6 10M12 4L18 10" : "M12 20L12 4M12 20L6 14M12 20L18 14",
+        stroke: "currentColor",
+        strokeWidth: "2",
+        strokeLinecap: "round",
+        strokeLinejoin: "round"
+      }
+    )
+  }
+);
+const ScoreChangeBadge = ({ runs, className = "" }) => {
+  const isBoundary = runs >= 4;
+  const isSix = runs === 6;
+  const isWicket = runs === 0;
+  let bgColor = "bg-muted";
+  let textColor = "text-muted-foreground";
+  if (isSix) {
+    bgColor = "bg-boundary/20";
+    textColor = "text-boundary";
+  } else if (isBoundary) {
+    bgColor = "bg-boundary/10";
+    textColor = "text-boundary";
+  } else if (isWicket) {
+    bgColor = "bg-destructive/10";
+    textColor = "text-destructive";
+  }
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    "span",
+    {
+      className: `inline-flex items-center justify-center w-8 h-8 rounded-full ${bgColor} ${textColor} font-bold text-sm ${className}`,
+      children: runs === 0 ? "W" : runs
+    }
+  );
+};
+const RankChangeIndicator = ({ change, className = "" }) => {
+  if (change === 0) return null;
+  const isPositive = change > 0;
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "span",
+    {
+      className: `inline-flex items-center gap-1 text-xs font-medium ${isPositive ? "text-success" : "text-destructive"} ${className}`,
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          BoundaryArrow,
+          {
+            direction: isPositive ? "up" : "down",
+            className: "w-3 h-3"
+          }
+        ),
+        Math.abs(change)
+      ]
+    }
+  );
+};
 function Table({ className, ...props }) {
   return /* @__PURE__ */ jsxRuntimeExports.jsx(
     "div",
@@ -47730,13 +47981,8 @@ function getRankIcon(rank) {
   return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted-foreground text-sm font-bold w-5 h-5 flex items-center justify-center", children: r2 });
 }
 function getTrendIndicator(current, previous) {
-  if (current > previous) {
-    return /* @__PURE__ */ jsxRuntimeExports.jsx(TrendingUp, { className: "w-3.5 h-3.5 text-emerald-400" });
-  }
-  if (current < previous) {
-    return /* @__PURE__ */ jsxRuntimeExports.jsx(TrendingDown, { className: "w-3.5 h-3.5 text-red-400" });
-  }
-  return null;
+  const change = current - previous;
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(RankChangeIndicator, { change });
 }
 function ContestDetail() {
   const { contestId } = useParams({ from: "/contests/$contestId" });
@@ -48235,8 +48481,8 @@ function HomePage() {
       if (!liveMatch) return null;
       return /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { className: "bg-card border-border overflow-hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsx(CardContent, { className: "p-0", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-gradient-to-r from-red-500/10 via-background to-red-500/10 px-5 py-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between mb-3", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { className: "bg-red-500/20 text-red-400 border-red-500/30 text-[10px] animate-pulse", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "w-1.5 h-1.5 rounded-full bg-red-400 mr-1" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { className: "bg-red-500/20 text-red-400 border-red-500/30 text-[10px] flex items-center gap-1", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(LiveIndicatorDot, {}),
             "LIVE"
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[10px] text-muted-foreground uppercase tracking-wider font-medium", children: liveMatch.venue })
@@ -48355,16 +48601,35 @@ function HomePage() {
                         ] })
                       }
                     ),
-                    m2.status === MatchStatus.Live && /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { className: "bg-red-500/20 text-red-400 border-red-500/30 text-[10px] animate-pulse", children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "w-1.5 h-1.5 rounded-full bg-red-400 mr-1" }),
+                    m2.status === MatchStatus.Live && /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge, { className: "bg-red-500/20 text-red-400 border-red-500/30 text-[10px] flex items-center gap-1", children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(LiveIndicatorDot, {}),
                       "LIVE"
                     ] })
                   ] }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-sm font-bold text-foreground mb-1", children: [
-                    m2.teamA.name,
-                    " vs ",
-                    m2.teamB.name
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 mb-1", children: [
+                    m2.teamA.logo && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "img",
+                      {
+                        src: m2.teamA.logo,
+                        alt: m2.teamA.name,
+                        className: "h-6 w-6 object-contain"
+                      }
+                    ),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-sm font-bold text-foreground", children: [
+                      m2.teamA.name,
+                      " vs ",
+                      m2.teamB.name
+                    ] }),
+                    m2.teamB.logo && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "img",
+                      {
+                        src: m2.teamB.logo,
+                        alt: m2.teamB.name,
+                        className: "h-6 w-6 object-contain"
+                      }
+                    )
                   ] }),
+                  m2.liveStatus && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-primary font-medium mb-1", children: m2.liveStatus }),
                   /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-muted-foreground mb-2", children: m2.venue }),
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs text-muted-foreground mb-3", children: [
                     ((_b3 = (_a3 = contestQs[i]) == null ? void 0 : _a3.data) == null ? void 0 : _b3.length) || 0,
@@ -49116,6 +49381,7 @@ function MatchDetailPage() {
   const { data: contests, isLoading: contestsLoading } = useContests(matchId);
   const { data: myTeams } = useMyTeams();
   const createTeam = useCreateTeam();
+  const { data: ballHistory } = useGetBallHistory(Number(matchId));
   const [selectedPlayers, setSelectedPlayers] = reactExports.useState(
     /* @__PURE__ */ new Set()
   );
@@ -49249,6 +49515,52 @@ function MatchDetailPage() {
         match.venue
       ] })
     ] }) }) }),
+    match.status === MatchStatus.Live && /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { className: "bg-card border-border border-live-green/30 overflow-hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsx(CardContent, { className: "p-0", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-gradient-to-r from-live-green/10 via-background to-live-green/10 p-4 sm:p-6", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between mb-4", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(LiveIndicatorDot, {}),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-bold text-live-green uppercase tracking-wider", children: "Live" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-muted-foreground", children: match.venue })
+      ] }),
+      match.liveStatus && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center mb-4", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-2xl font-display font-bold text-foreground", children: match.liveStatus }),
+        match.currentOver && /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-sm text-muted-foreground mt-1", children: [
+          "Over ",
+          match.currentOver
+        ] })
+      ] }),
+      ballHistory && ballHistory.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-4", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2", children: "Ball-by-Ball" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex gap-2 overflow-x-auto pb-2", children: ballHistory.slice(-10).map((ball, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "div",
+          {
+            className: `ball-card-in flex-shrink-0 w-20 p-2 rounded-lg border ${ball.isWicket ? "bg-destructive/10 border-destructive/30" : ball.isBoundary || ball.isSix ? "bg-boundary/10 border-boundary/30" : "bg-muted/40 border-border"}`,
+            "data-ocid": `matchdetail.ball_event.${idx + 1}`,
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between mb-1", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-[10px] text-muted-foreground", children: [
+                  ball.over,
+                  ".",
+                  ball.ball
+                ] }),
+                ball.isWicket ? /* @__PURE__ */ jsxRuntimeExports.jsx(WicketIcon, { className: "w-3 h-3 text-destructive" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(BallIcon, { className: "w-3 h-3 text-muted-foreground" })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-center mb-1", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                ScoreChangeBadge,
+                {
+                  runs: Number(ball.runs),
+                  className: ball.isBoundary || ball.isSix ? "score-flash-boundary" : ball.isWicket ? "score-flash-wicket" : ""
+                }
+              ) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[9px] text-muted-foreground text-center truncate", children: ball.batter }),
+              ball.description && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[8px] text-muted-foreground text-center truncate mt-0.5", children: ball.description })
+            ]
+          },
+          `${ball.over}-${ball.ball}-${idx}`
+        )) })
+      ] })
+    ] }) }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(Card, { className: "bg-card border-border", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(CardContent, { className: "p-4 space-y-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-medium text-muted-foreground", children: "Budget" }),
@@ -49374,7 +49686,7 @@ function MatchDetailPage() {
         return /* @__PURE__ */ jsxRuntimeExports.jsx(
           Card,
           {
-            className: `bg-card border-border transition-all duration-200 ${isSelected ? "border-primary/50 shadow-sm" : ""}`,
+            className: `bg-card border-border transition-all duration-200 ${isSelected ? "border-primary/50 shadow-sm player-card-selected" : ""}`,
             "data-ocid": `matchdetail.player_card.${role.toLowerCase()}.${pIdx + 1}`,
             children: /* @__PURE__ */ jsxRuntimeExports.jsxs(CardContent, { className: "p-3 flex items-center gap-3", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -49386,19 +49698,19 @@ function MatchDetailPage() {
                   "data-ocid": `matchdetail.player_checkbox.${role.toLowerCase()}.${pIdx + 1}`
                 }
               ),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
+              player.avatar ? /* @__PURE__ */ jsxRuntimeExports.jsx(
                 "img",
                 {
-                  src: player.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(player.name)}&background=1a1a2e&color=f97316&size=128`,
+                  src: player.avatar,
                   alt: player.name,
-                  className: "w-10 h-10 rounded-full object-cover bg-primary/10 shrink-0",
+                  className: "h-10 w-10 rounded-full object-cover shrink-0",
                   onError: (e) => {
                     const el = e.currentTarget;
                     el.onerror = null;
                     el.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(player.name)}&background=1a1a2e&color=f97316&size=128`;
                   }
                 }
-              ),
+              ) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm shrink-0", children: player.name[0] }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-0", children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium text-foreground truncate", children: player.name }),
@@ -49413,6 +49725,14 @@ function MatchDetailPage() {
                     "Cr"
                   ] }),
                   /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "•" }),
+                  player.country && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    Badge,
+                    {
+                      variant: "outline",
+                      className: "text-[10px] px-1 py-0 h-auto bg-muted/50",
+                      children: player.country
+                    }
+                  ),
                   /* @__PURE__ */ jsxRuntimeExports.jsxs(
                     Badge,
                     {
@@ -49591,10 +49911,7 @@ function MatchCard({ match }) {
             }
           ),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
-            isLive && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "relative flex h-2.5 w-2.5", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" })
-            ] }),
+            isLive && /* @__PURE__ */ jsxRuntimeExports.jsx(LiveIndicatorDot, {}),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               Badge,
               {
@@ -49635,6 +49952,13 @@ function MatchCard({ match }) {
             /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "font-display font-bold text-lg", children: match.teamB.code }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-muted-foreground", children: match.teamB.name }),
             match.status === MatchStatus.Live && match.scoreB && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xl font-bold text-primary mt-1", children: match.scoreB })
+          ] })
+        ] }),
+        (match.liveStatus || match.currentOver) && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-3 p-3 bg-muted/40 rounded-lg border border-border/50 mb-4", children: [
+          match.liveStatus && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm font-semibold text-foreground text-center", children: match.liveStatus }),
+          match.currentOver && /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs text-muted-foreground text-center mt-1", children: [
+            "Over ",
+            match.currentOver
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground mb-4", children: [

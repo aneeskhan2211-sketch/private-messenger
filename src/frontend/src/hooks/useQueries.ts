@@ -1,5 +1,5 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type {
+  BallEvent,
   Contest,
   ContestEntry,
   FantasyTeam,
@@ -9,7 +9,8 @@ import type {
   StripeSessionStatus,
   Transaction,
   UserProfile,
-} from "../types";
+} from "@/backend";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useActor } from "./useActor";
 import { useInternetIdentity } from "./useInternetIdentity";
 
@@ -21,7 +22,7 @@ export function useMatches() {
     queryKey: ["matches"],
     queryFn: async () => {
       if (!actor) return [];
-      return actor.getMatches();
+      return actor.getMatches() as Promise<Match[]>;
     },
     enabled: !!actor,
   });
@@ -33,7 +34,7 @@ export function useMatch(id: string) {
     queryKey: ["match", id],
     queryFn: async () => {
       if (!actor || !id) return null;
-      return actor.getMatch(BigInt(id));
+      return actor.getMatch(BigInt(id)) as Promise<Match | null>;
     },
     enabled: !!actor && !!id,
   });
@@ -45,7 +46,7 @@ export function usePlayers(matchId: string) {
     queryKey: ["players", matchId],
     queryFn: async () => {
       if (!actor || !matchId) return [];
-      return actor.getPlayers(BigInt(matchId));
+      return actor.getPlayers(BigInt(matchId)) as Promise<Player[]>;
     },
     enabled: !!actor && !!matchId,
   });
@@ -106,7 +107,7 @@ export function useContests(matchId?: string) {
     queryFn: async () => {
       if (!actor) return [];
       if (matchId) {
-        return actor.getContests(BigInt(matchId));
+        return actor.getContests(BigInt(matchId)) as Promise<Contest[]>;
       }
       return [];
     },
@@ -121,7 +122,7 @@ export function useContest(id: string) {
     queryKey: ["contest", id],
     queryFn: async () => {
       if (!actor || !id) return null;
-      return actor.getContest(BigInt(id));
+      return actor.getContest(BigInt(id)) as Promise<Contest | null>;
     },
     enabled: !!actor && !!id,
   });
@@ -155,10 +156,51 @@ export function useLeaderboard(contestId: string) {
     queryKey: ["leaderboard", contestId],
     queryFn: async () => {
       if (!actor || !contestId) return [];
-      return actor.getLeaderboard(BigInt(contestId));
+      return actor.getLeaderboard(BigInt(contestId)) as Promise<
+        LeaderboardEntry[]
+      >;
     },
     enabled: !!actor && !!contestId,
-    refetchInterval: 30000,
+    refetchInterval: 10000,
+  });
+}
+
+export function useGetBallHistory(matchId: number) {
+  const { actor } = useActor();
+  return useQuery<BallEvent[]>({
+    queryKey: ["ballHistory", matchId],
+    queryFn: async () => {
+      if (!actor) return [];
+      return actor.getBallHistory(BigInt(matchId)) as Promise<BallEvent[]>;
+    },
+    enabled: !!actor,
+    refetchInterval: 10000,
+  });
+}
+
+export function useGetApiKey() {
+  const { actor } = useActor();
+  return useQuery<string | null>({
+    queryKey: ["apiKey"],
+    queryFn: async () => {
+      if (!actor) return null;
+      return actor.getApiKey();
+    },
+    enabled: !!actor,
+  });
+}
+
+export function useSetApiKey() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (key: string) => {
+      if (!actor) throw new Error("Actor not ready");
+      return actor.setApiKey(key);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["apiKey"] });
+    },
   });
 }
 
@@ -183,7 +225,7 @@ export function useTransactions() {
     queryKey: ["transactions"],
     queryFn: async () => {
       if (!actor) return [];
-      return actor.getTransactions();
+      return actor.getTransactions() as Promise<Transaction[]>;
     },
     enabled: !!actor,
   });
@@ -195,7 +237,7 @@ export function useContestHistory() {
     queryKey: ["contestHistory"],
     queryFn: async () => {
       if (!actor) return [];
-      return actor.getContestHistory();
+      return actor.getContestHistory() as Promise<ContestEntry[]>;
     },
     enabled: !!actor,
   });
@@ -210,7 +252,7 @@ export function useUserProfile() {
     queryKey: ["userProfile", identity?.getPrincipal().toString()],
     queryFn: async () => {
       if (!actor) return null;
-      return actor.getUserProfile();
+      return actor.getUserProfile() as Promise<UserProfile | null>;
     },
     enabled: !!actor && !!identity,
   });
@@ -269,7 +311,9 @@ export function useStripeSessionStatus(sessionId: string) {
     queryKey: ["stripeSession", sessionId],
     queryFn: async () => {
       if (!actor || !sessionId) return null;
-      return actor.getStripeSessionStatus(sessionId);
+      return actor.getStripeSessionStatus(
+        sessionId,
+      ) as Promise<StripeSessionStatus | null>;
     },
     enabled: !!actor && !!sessionId,
   });

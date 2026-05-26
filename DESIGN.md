@@ -1,72 +1,69 @@
-# Design Brief: Dark Sporty Fantasy Sports
+# Design Brief: Premium Dark Live Sports Fantasy Cricket
 
-## Tone & Differentiation
-Bold, competitive, high-energy fantasy sports platform for cricket, football, and kabaddi. Dark mode premium aesthetic with orange accent signaling action and wins. Dream11-inspired contest flow with real-money betting sensibility. Eliminates noise—no messaging, pure competition focus.
+## Direction
+Fantasy11 — high-energy live cricket fantasy sports platform with real-time ball-by-ball scoring, animated SVG indicators, and premium dark aesthetic.
+
+## Tone
+Bold, competitive, stadium-like energy. Dark charcoal canvas with vibrant orange accents for action/captain multipliers and cricket-green for live success indicators. No noise—pure competition focus.
+
+## Differentiation
+Animated live indicators (pulsing red dots, wicket spins, boundary flashes) + smooth leaderboard rank changes create an unforgettable real-time sports experience.
 
 ## Color Palette
-| Role | OKLCH | Usage |
+| Token | OKLCH | Role |
 | --- | --- | --- |
-| Background | oklch(0.09 0.01 260) | Charcoal canvas, dark neutral base |
-| Card | oklch(0.14 0.01 260) | Elevated surfaces, contest cards, team builders |
-| Accent | oklch(0.62 0.22 35) | Orange: captain badges, live scores, wins, CTAs |
+| Background | oklch(0.09 0.01 260) | Dark charcoal canvas |
+| Card | oklch(0.12 0.01 260) | Elevated surfaces, contests |
 | Text Primary | oklch(0.95 0.01 260) | Body copy on dark |
-| Text Muted | oklch(0.65 0.01 260) | Secondary labels, hints |
-| Border | oklch(0.20 0.01 260) | Card edges, dividers |
-| Success | oklch(0.65 0.15 150) | Winning streaks, prize confirmation |
-| Destructive | oklch(0.55 0.15 25) | Contest closure, loss indicators |
+| Text Muted | oklch(0.7 0.01 260) | Secondary labels |
+| Primary | oklch(0.62 0.22 35) | Orange: CTAs, captain badges, featured elements |
+| Accent | oklch(0.62 0.22 35) | Orange: same as primary |
+| Live Green | oklch(0.65 0.22 140) | Boundary highlights, success states |
+| Destructive | oklch(0.65 0.2 25) | Red: wickets, losses, live indicators |
+| Border | oklch(0.15 0.01 260) | Card edges, dividers |
 
 ## Typography
 | Role | Font | Usage |
 | --- | --- | --- |
-| Display | Space Grotesk 700/800 | Contest names, leaderboard rank, prize pools |
-| Body | DM Sans 400/500 | Team info, player stats, contest details |
-| Mono | Space Mono 400 | Scores, stats, numeric precision |
+| Display | Space Grotesk 800 | Match names, leaderboard ranks, prize pools |
+| Body | DM Sans 400/500 | Team info, player stats, ball-by-ball events |
+| Mono | Fira Code 400 | Scores, numeric data, overs |
 
 ## Elevation & Depth
-- Shadow xs: `0 2px 4px oklch(0 0 0 / 0.12)` — subtle separators
-- Shadow sm: `0 4px 8px oklch(0 0 0 / 0.15)` — card bases
-- Shadow md: `0 8px 16px oklch(0 0 0 / 0.18)` — modals, overlays
-- Card Elevated: `0 8px 32px oklch(0 0 0 / 0.25)` — featured contests
-- Glow Orange: `0 0 24px oklch(0.62 0.22 35 / 0.4)` — live match halo
-- Sport Glow: Dual glow + inset rim for active player cards
+Multi-layer depth via shadows: subtle base (xs) → cards (sm) → modals (md) → featured contests (elevated + sport-glow). Sport-glow dual effect (24px blur + inset rim) on selected player cards and live match cards creates radiant premium feel.
 
 ## Structural Zones
-| Zone | Content | Visual Cue |
-| --- | --- | --- |
-| Header | Logo, wallet balance, live match badge | Sticky charcoal, orange live indicator |
-| Hero | Featured contests, live match leaderboard | Full-width card-elevated shadow, sport-glow accent |
-| Grid | Contest cards (3-4 columns desktop, 1-2 mobile) | Card borders, glow on hover |
-| Team Builder | Player selection, budget cap, multipliers | Scrollable list, orange captain/VC badges |
-| Leaderboard | Rank, user, points, prize tier | Card rows, success green for top 3 |
-| Wallet | Balance, entry fees, prize claims | Card container, form inputs |
-| Footer | Links, copyright | Muted text, no navigation (no messaging) |
+| Zone | Background | Border | Notes |
+| --- | --- | --- | --- |
+| Header | Charcoal card-elevated | Orange live badge | Sticky, wallet balance, live match indicator |
+| Hero | Card elevated + sport-glow | Orange accent | Featured contest leaderboard, ball-by-ball feed |
+| Grid | Card with border | Subtle divider | Contest cards 3-4 desktop, 1-2 mobile |
+| Team Builder | Charcoal card | Orange selected | Player selection with captain/VC multipliers |
+| Leaderboard | Alternating muted bg | None | Rank up/down animation, top-3 green highlight |
+| Footer | Muted/40 | Border-t | Links, copyright |
 
 ## Spacing & Rhythm
-- Base unit: 4px
-- Padding: 12px (cards), 16px (sections), 24px (container edges)
-- Gap: 12px (grid), 8px (lists)
-- Breakpoints: 640px (mobile), 1024px (desktop)
+Base 4px unit: 12px card padding, 16px section margins, 24px container edges. Grid gap 12px desktop, 8px mobile. Tight spacing reinforces premium sports feel.
 
 ## Component Patterns
-- Buttons: Orange accent on hover, Space Grotesk 700, full-width on mobile
-- Cards: Charcoal borders, card-elevated on featured, sport-glow hover
-- Badges: Orange accent for captain/VC, green for rank rewards
-- Form inputs: Dark background, orange focus ring
-- Live indicators: Blinking orange glow, "LIVE" label in Space Grotesk
-- Leaderboard rows: Alternating subtle backgrounds, top-3 green highlight
+- Buttons: Orange on hover, Space Grotesk 700, full-width mobile
+- Cards: Charcoal border, card-elevated featured, sport-glow on hover
+- Badges: Orange for captain/VC, green for rank rewards
+- Live dot: 8px red pulsing indicator with 1.5s keyframe
+- Ball-by-ball card: Slide-in from bottom 0.4s, milestone pulse on boundary/wicket
+- Player selection: Animated inset border glow + outer halo on select
+- Score flash: Green 0.6s for boundary, red 0.8s for wicket
+- Rank arrows: Up (green fade) / Down (red fade) 0.8s exit animation
 
 ## Motion
-- Fade-up: Contest card entry (0.6s ease-out)
-- Slide-in-right: Team builder selections
-- Glow pulse: Live score updates (custom keyframe)
-- Hover scale: +2% on interactive elements
+Live animations drive engagement: pulsing red dot (live-indicator-pulse 1.5s), score flashes (boundary=green, wicket=red 0.6–0.8s), wicket spin (720deg rotate, 1.2s exit), ball-by-ball slide-in (0.4s ease-out), milestone orange pulse (0.8s), player-card glow border (1.2s infinite), rank change up/down (0.8s exit upward/downward).
 
 ## Constraints
-- No social referral program with bonus credits (out of scope)
-- No in-app notifications for match start, team acceptance, prize claims
-- Polling-only score updates (30s refresh from sports data API)
-- Real-money wallet with Stripe payment integration
-- Dream11-style UX: budget cap, captain/VC multipliers, contest leaderboards
+- No ball-by-ball replay timeline after match (out of scope)
+- No admin CricAPI key rotation panel (out of scope)
+- 30s polling refresh from sports data API
+- Real-money wallet via Stripe
+- Dream11-style: budget cap, captain/VC multipliers, contest leaderboards
 
 ## Signature Detail
-Orange sport-glow on featured contest cards + live match leaderboard: radiant 24px blur + inset rim creates depth. Captain/VC badges in orange Space Grotesk bold signal authority and multiplier power. Charcoal + orange contrast evokes night stadium—premium, focused, competitive.
+Animated red pulsing live dot + cricket-green boundary flash + orange wicket milestone pulse create a choreographed real-time sports feeling. Selected player cards animate with orange border glow + outer halo. Leaderboard rank changes fade up/down smoothly. Charcoal + orange + green color story feels premium, focused, and live.

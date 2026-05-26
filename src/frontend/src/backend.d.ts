@@ -9,6 +9,7 @@ export interface None {
 export type Option<T> = Some<T> | None;
 export interface Player {
     id: bigint;
+    country?: string;
     name: string;
     role: PlayerRole;
     team: string;
@@ -16,6 +17,7 @@ export interface Player {
     credit: number;
     matchId: bigint;
     points: number;
+    avatar?: string;
 }
 export interface LeaderboardEntry {
     teamName: string;
@@ -28,6 +30,18 @@ export interface TransformationOutput {
     status: bigint;
     body: Uint8Array;
     headers: Array<http_header>;
+}
+export interface BallEvent {
+    ball: string;
+    over: string;
+    runs: bigint;
+    batter: string;
+    description: string;
+    bowler: string;
+    isWicket: boolean;
+    timestamp: bigint;
+    isSix: boolean;
+    isBoundary: boolean;
 }
 export interface FantasyTeam {
     id: bigint;
@@ -51,6 +65,9 @@ export interface Match {
     scoreB?: string;
     lastUpdated: bigint;
     sport: Sport;
+    ballHistory: Array<BallEvent>;
+    currentOver?: string;
+    liveStatus?: string;
 }
 export interface http_header {
     value: string;
@@ -164,6 +181,8 @@ export interface backendInterface {
     confirmPayment(sessionId: string): Promise<boolean>;
     createCheckoutSession(amount: bigint): Promise<string>;
     createTeam(matchId: bigint, name: string, playerIds: Array<bigint>, captainId: bigint, viceCaptainId: bigint): Promise<FantasyTeam>;
+    getApiKey(): Promise<string | null>;
+    getBallHistory(matchId: bigint): Promise<Array<BallEvent>>;
     getContest(contestId: bigint): Promise<Contest | null>;
     getContestHistory(): Promise<Array<ContestEntry>>;
     getContests(matchId: bigint): Promise<Array<Contest>>;
@@ -179,6 +198,7 @@ export interface backendInterface {
     isStripeConfigured(): Promise<boolean>;
     joinContest(contestId: bigint, teamId: bigint): Promise<ContestEntry>;
     refreshLiveScores(): Promise<void>;
+    setApiKey(key: string): Promise<void>;
     setStripeConfiguration(config: StripeConfiguration): Promise<void>;
     setUserProfile(username: string, phone: string | null): Promise<UserProfile>;
     transform(input: TransformationInput): Promise<TransformationOutput>;

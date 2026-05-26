@@ -1,23 +1,23 @@
 {
-  "overview": "A Dream11-style fantasy sports platform where users create teams, join contests, track live scores and win real money prizes across cricket, football and kabaddi.",
+  "overview": "Fantasy11 is a live Dream11-style fantasy sports platform with real-time cricket scores, ball-by-ball updates, player avatars, and animated live match indicators.",
   "features": [
-    "Fantasy team creation with player budget and captain/vice-captain selection",
-    "Contest discovery and joining across cricket, football, and kabaddi",
-    "Real-time live scoring via sports data API polling",
-    "Live leaderboards with rank tracking during matches",
-    "Real-money wallet with Stripe payment integration",
-    "Contest history with winnings and prize tracking"
+    "Live cricket match scores via CricAPI",
+    "Ball-by-ball scoring feed with event animations",
+    "Player avatar photos and team/country flag logos",
+    "Animated SVG live indicators and score change effects",
+    "Real-time leaderboard updates every 10 seconds",
+    "Fantasy team builder with live player stats",
+    "Contest discovery with entry fees and prize pools",
+    "Real-money wallet with Stripe payments"
   ],
-  "category": "sports-gaming",
+  "category": "sports-app",
   "tags": [
     "fantasy-sports",
     "cricket",
-    "football",
-    "kabaddi",
+    "live-scores",
+    "real-time",
     "contests",
-    "real-money",
-    "leaderboard",
     "dream11"
   ],
-  "last_updated": "2026-05-25T10:27:44.213Z"
+  "last_updated": "2026-05-26T04:07:08.810Z"
 }
